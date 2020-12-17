@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".OrdersClientListActivity">
+
+    <Button
+        android:id="@+id/orderClientHistorySearch"
+        android:layout_width="wrap_content"
+        android:layout_height="40dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="16dp"
+        android:insetTop="4dp"
+        android:insetBottom="4dp"
+        android:text="@string/search_button"
+        android:textStyle="bold"
+        app:cornerRadius="50dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/layoutHeaderListOrdersFromClient" />
+
+    <ListView
+        android:id="@+id/list_request_client"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"
+        android:choiceMode="singleChoice"
+        android:divider="@color/white"
+        android:dividerHeight="10dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/orderClientHistorySearch"
+        tools:listitem="@layout/item_list_orders_list">
+
+    </ListView>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/layoutHeaderListOrdersFromClient"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:background="@color/white"
+        android:elevation="2dp"
+        android:translationZ="3dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:id="@+id/orderListClientOrdersList"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:drawablePadding="5dp"
+            android:gravity="center"
+            android:text="Sales Agent - Client orders"
+            android:textSize="18sp"
+            app:drawableStartCompat="@drawable/ic_icon_app_black"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.538" />
+
+        <TextView
+            android:id="@+id/textBackToClient"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:clickable="true"
+            android:drawablePadding="5dp"
+            android:gravity="center"
+            android:text="@string/back_button"
+            android:textColor="@color/black"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            app:drawableStartCompat="@drawable/ic_arrow_back_black_36dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <TextView
+        android:id="@+id/textPeriodHistoryClientTo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="TO"
+        android:textColor="@color/black"
+        android:textSize="16sp"
+        app:layout_constraintBottom_toTopOf="@+id/list_request_client"
+        app:layout_constraintEnd_toStartOf="@+id/orderClientHistorySearch"
+        app:layout_constraintStart_toEndOf="@+id/textView54"
+        app:layout_constraintTop_toBottomOf="@+id/layoutHeaderListOrdersFromClient" />
+
+    <TextView
+        android:id="@+id/textPeriodHistoryClientFrom"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:text="FROM"
+        android:textColor="@color/black"
+        android:textSize="16sp"
+        app:layout_constraintBottom_toTopOf="@+id/list_request_client"
+        app:layout_constraintEnd_toStartOf="@+id/textView54"
+        app:layout_constraintStart_toEndOf="@+id/textView53"
+        app:layout_constraintTop_toBottomOf="@+id/layoutHeaderListOrdersFromClient" />
+
+    <TextView
+        android:id="@+id/textView51"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:text="@string/search_for"
+        android:textSize="16sp"
+        app:layout_constraintBottom_toTopOf="@+id/list_request_client"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/layoutHeaderListOrdersFromClient" />
+
+    <TextView
+        android:id="@+id/textPeriodHistoryClientName"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp"
+        android:text="TextView"
+        android:textColor="@color/black"
+        android:textSize="16sp"
+        app:layout_constraintBottom_toTopOf="@+id/list_request_client"
+        app:layout_constraintEnd_toStartOf="@+id/textView53"
+        app:layout_constraintStart_toEndOf="@+id/textView51"
+        app:layout_constraintTop_toBottomOf="@+id/layoutHeaderListOrdersFromClient" />
+
+    <TextView
+        android:id="@+id/textView53"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/period_searched"
+        android:textSize="16sp"
+        app:layout_constraintBottom_toTopOf="@+id/list_request_client"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/layoutHeaderListOrdersFromClient" />
+
+    <TextView
+        android:id="@+id/textView54"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/to_searched_period"
+        android:textColor="@color/black"
+        android:textSize="18sp"
+        app:layout_constraintBottom_toTopOf="@+id/list_request_client"
+        app:layout_constraintEnd_toStartOf="@+id/textPeriodHistoryClientTo"
+        app:layout_constraintStart_toEndOf="@+id/textPeriodHistoryClientFrom"
+        app:layout_constraintTop_toBottomOf="@+id/layoutHeaderListOrdersFromClient" />
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "140172624815",
+    "project_id": "salesagent-8df2b",
+    "storage_bucket": "salesagent-8df2b.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:140172624815:android:c3d396cb57616aa74c655a",
+        "android_client_info": {
+          "package_name": "md.intelectsoft.salesagent"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "140172624815-4toqkdq8bg2s8jkfvogc08ov8dug28it.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBhRSFb9aK-uzwe0djO8-l_RrU5hzLeW4o"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "140172624815-4toqkdq8bg2s8jkfvogc08ov8dug28it.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    package="md.intelectsoft.salesagent">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+
+    <application
+        android:name="md.intelectsoft.salesagent.AgentApplication"
+        android:allowBackup="true"
+        android:icon="@drawable/icon_app"
+        android:label="@string/app_name"
+        android:requestLegacyExternalStorage="true"
+        android:roundIcon="@drawable/icon_app_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.EAgent"
+        android:usesCleartextTraffic="true">
+        <activity
+            android:name="md.intelectsoft.salesagent.NewsDetailActivity"
+            android:configChanges="orientation"
+            android:screenOrientation="landscape"
+            android:windowSoftInputMode="stateHidden|adjustPan|adjustResize"/>
+        <activity
+            android:name="md.intelectsoft.salesagent.NewsActivity"
+            android:configChanges="orientation"
+            android:screenOrientation="landscape"
+            android:windowSoftInputMode="stateHidden|adjustPan|adjustResize"/>
+        <activity
+            android:name="md.intelectsoft.salesagent.SettingsActivity"
+            android:configChanges="orientation"
+            android:screenOrientation="landscape"
+            android:windowSoftInputMode="stateHidden|adjustPan|adjustResize"/>
+        <activity
+            android:name="md.intelectsoft.salesagent.OrderHistoryClientActivity"
+            android:configChanges="orientation"
+            android:screenOrientation="landscape"
+            android:windowSoftInputMode="stateHidden|adjustPan|adjustResize"/>
+        <activity
+            android:name="md.intelectsoft.salesagent.ClientHistoryActivity"
+            android:configChanges="orientation"
+            android:screenOrientation="landscape"
+            android:windowSoftInputMode="stateHidden|adjustPan|adjustResize"/>
+        <activity
+            android:name="md.intelectsoft.salesagent.OrdersClientListActivity"
+            android:configChanges="orientation"
+            android:screenOrientation="landscape"
+            android:windowSoftInputMode="stateHidden|adjustPan|adjustResize" />
+        <activity
+            android:name="md.intelectsoft.salesagent.AddProductsFromOrder"
+            android:configChanges="orientation"
+            android:screenOrientation="landscape"
+            android:windowSoftInputMode="stateHidden|adjustPan|adjustResize" />
+        <activity
+            android:name="md.intelectsoft.salesagent.ShopCartActivity"
+            android:configChanges="orientation"
+            android:screenOrientation="landscape"
+            android:windowSoftInputMode="stateHidden|adjustPan|adjustResize" />
+        <activity
+            android:name="md.intelectsoft.salesagent.AssortmentOrderActivity"
+            android:configChanges="orientation"
+            android:screenOrientation="landscape"
+            android:windowSoftInputMode="stateHidden|adjustPan|adjustResize" />
+        <activity
+            android:name="md.intelectsoft.salesagent.ClientOrderActivity"
+            android:configChanges="orientation"
+            android:screenOrientation="landscape"
+            android:windowSoftInputMode="stateHidden|adjustPan|adjustResize" />
+        <activity
+            android:name="md.intelectsoft.salesagent.ItemKindListActivity"
+            android:configChanges="orientation"
+            android:label="title_itemkind_list"
+            android:screenOrientation="landscape"
+            android:theme="@style/Theme.EAgent.NoActionBar"
+            android:windowSoftInputMode="stateHidden|adjustPan|adjustResize" />
+        <activity
+            android:name="md.intelectsoft.salesagent.OrderDetailActivity"
+            android:configChanges="orientation"
+            android:screenOrientation="landscape"
+            android:windowSoftInputMode="stateHidden|adjustPan|adjustResize" />
+        <activity
+            android:name="md.intelectsoft.salesagent.ClientDetailActivity"
+            android:configChanges="orientation"
+            android:screenOrientation="landscape"
+            android:windowSoftInputMode="stateHidden|adjustPan|adjustResize" />
+        <activity
+            android:name="md.intelectsoft.salesagent.ClientActivity"
+            android:configChanges="orientation"
+            android:screenOrientation="landscape"
+            android:windowSoftInputMode="stateHidden|adjustPan|adjustResize" />
+        <activity
+            android:name="md.intelectsoft.salesagent.ProductsActivity"
+            android:configChanges="orientation"
+            android:screenOrientation="landscape"
+            android:windowSoftInputMode="stateHidden|adjustPan|adjustResize" />
+        <activity
+            android:name="md.intelectsoft.salesagent.OrdersListActivity"
+            android:configChanges="orientation"
+            android:screenOrientation="landscape"
+            android:windowSoftInputMode="stateHidden|adjustPan|adjustResize" />
+        <activity
+            android:name="md.intelectsoft.salesagent.SplashActivity"
+            android:configChanges="orientation"
+            android:screenOrientation="landscape">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="md.intelectsoft.salesagent.StartActivity"
+            android:configChanges="orientation"
+            android:screenOrientation="landscape"
+            android:windowSoftInputMode="stateHidden|adjustPan|adjustResize" />
+        <activity
+            android:name="md.intelectsoft.salesagent.MainActivity"
+            android:configChanges="orientation"
+            android:screenOrientation="landscape"
+            android:windowSoftInputMode="stateHidden" />
+
+        <meta-data
+            android:name="preloaded_fonts"
+            android:resource="@array/preloaded_fonts" />
+
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="md.intelectsoft.salesagent.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/filepaths" />
+        </provider>
+    </application>
+
+</manifest>

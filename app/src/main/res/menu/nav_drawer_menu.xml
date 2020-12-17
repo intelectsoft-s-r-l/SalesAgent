@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:showIn="navigation_view">
+
+    <item android:title="Main">
+        <menu>
+            <item
+                android:id="@+id/newsItemMenu"
+                android:icon="@drawable/news_icon"
+                android:title="@string/news_header_title" />
+            <item
+                android:id="@+id/syncItemMenu"
+                android:icon="@drawable/ic_sync_black_36dp"
+                android:title="@string/sync_settings_item" />
+            <item
+                android:id="@+id/diagnosticItemMenu"
+                android:icon="@drawable/diagnostic_icon"
+                android:title="@string/send_diagnostic_item" />
+        </menu>
+    </item>
+</menu>

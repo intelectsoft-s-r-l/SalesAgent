@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:state_activated="true" android:drawable="@drawable/background_outlet_item_selected" />
+    <item android:state_activated="false" android:drawable="@drawable/background_outlet_item" />
+</selector>
+
+<!--<item android:state_enabled="false" android:drawable="@drawable/round_corners_red_button_inactive" />-->
