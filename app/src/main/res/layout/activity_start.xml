@@ -164,7 +164,6 @@
                 android:ems="10"
                 android:inputType="text"
                 android:paddingStart="16dp"
-                android:text="Admin"
                 android:textColor="@color/black"
                 android:textSize="14sp" />
         </com.google.android.material.textfield.TextInputLayout>
