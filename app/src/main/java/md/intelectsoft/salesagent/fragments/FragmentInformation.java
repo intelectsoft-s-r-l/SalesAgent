@@ -26,6 +26,8 @@ public class FragmentInformation extends Fragment {
         TextView appVersion = view.findViewById(R.id.textAppVersion);
         TextView licenseCode = view.findViewById(R.id.textLicenseCode);
 
+        //Add license info in settings
+
         String license = getContext().getSharedPreferences(sharedPreferenceSettings, Context.MODE_PRIVATE).getString("LicenseCode","");
         licenseCode.setText(license);
 
