@@ -184,7 +184,7 @@ public class OrderDetailActivity extends AppCompatActivity {
 
                     File imagePath = new File(context.getCacheDir(), "images");
                     File newFile = new File(imagePath, "image.png");
-                    Uri contentUri = FileProvider.getUriForFile(context, "md.intelectsoft.eagent.fileprovider", newFile);
+                    Uri contentUri = FileProvider.getUriForFile(context, "md.intelectsoft.salesagent.fileprovider", newFile);
 
                     if (contentUri != null) {
                         Intent shareIntent = new Intent();
@@ -228,14 +228,25 @@ public class OrderDetailActivity extends AppCompatActivity {
         progressDialog = new ProgressDialog(context);
         orderTotalCost = findViewById(R.id.orderDetailTotalCost);
         orderSaveChanges = findViewById(R.id.orderDetailSaveChanges);
-        Intent intent = getIntent();
 
+        Intent intent = getIntent();
         uid = intent.getStringExtra("uid");
         id = intent.getStringExtra("id");
+
+        if(requestDetail == null)
+            Log.e("TAG", "onCreate: request is null" );
+        else
+            Log.e("TAG", "onCreate: request is not null" );
 
         requestDetail = mRealm.where(Request.class).equalTo("internId", id).or().equalTo("uid", uid).findFirst();
         if(requestDetail != null){
             changes = 0;
+
+            Log.e("TAG", "Client Name: " + requestDetail.getClientName()
+            + "\n Client id: " + requestDetail.getClientUid()
+            + "\n intern Id: " + requestDetail.getInternId()
+                    + "\n intern Id intent: " + id
+                    + "\n intern Uid intent: " + uid);
 
             int state = requestDetail.getState();
             String textState = "";
@@ -419,6 +430,12 @@ public class OrderDetailActivity extends AppCompatActivity {
                 }
             }
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        requestDetail = null;
     }
 
     private void saveOrder(SaveRequestBody order){

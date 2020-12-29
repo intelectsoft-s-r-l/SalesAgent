@@ -149,5 +149,6 @@
     <string name="news_header_title">Новости</string>
     <string name="detail_news_header_activity">Про новость</string>
     <string name="send_diagnostic_item">Отправить диагностику</string>
-    <string name="create_order_assortment_activity_header">Create order</string>
+    <string name="create_order_assortment_activity_header">Создание заказа</string>
+    <string name="settings_name_activity">Настройки</string>
 </resources>

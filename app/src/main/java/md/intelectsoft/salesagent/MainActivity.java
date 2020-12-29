@@ -8,13 +8,17 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.content.res.Resources;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.BatteryManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.text.SpannableString;
 import android.text.style.ForegroundColorSpan;
 import android.util.DisplayMetrics;
@@ -38,13 +42,26 @@ import com.google.android.material.navigation.NavigationView;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.net.URL;
 import java.text.SimpleDateFormat;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.TimeZone;
 import java.util.UUID;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.FutureTask;
+import java.util.concurrent.RunnableFuture;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -56,10 +73,13 @@ import md.intelectsoft.salesagent.AppUtils.BaseEnum;
 import md.intelectsoft.salesagent.AppUtils.BrokerServiceEnum;
 import md.intelectsoft.salesagent.AppUtils.LocaleHelper;
 import md.intelectsoft.salesagent.BrokerServiceUtils.Body.InformationData;
+import md.intelectsoft.salesagent.BrokerServiceUtils.Body.SendGetURI;
 import md.intelectsoft.salesagent.BrokerServiceUtils.BrokerRetrofitClient;
 import md.intelectsoft.salesagent.BrokerServiceUtils.BrokerServiceAPI;
+import md.intelectsoft.salesagent.BrokerServiceUtils.Results.AppDataRegisterApplication;
 import md.intelectsoft.salesagent.BrokerServiceUtils.Results.GetNews;
 import md.intelectsoft.salesagent.BrokerServiceUtils.Results.NewsList;
+import md.intelectsoft.salesagent.BrokerServiceUtils.Results.RegisterApplication;
 import md.intelectsoft.salesagent.OrderServiceUtils.OrderRetrofitClient;
 import md.intelectsoft.salesagent.OrderServiceUtils.OrderServiceAPI;
 import md.intelectsoft.salesagent.OrderServiceUtils.Results.AssortmentList;
@@ -97,12 +117,15 @@ public class MainActivity extends AppCompatActivity  implements NavigationView.O
     @BindView(R.id.countInQueueOrders) TextView countInQueueOrders;
     @BindView(R.id.countDraftOrders) TextView countDraftOrders;
 
+    String androidID, deviceName, publicIp, privateIp, deviceSN, osVersion, deviceModel;
+
     SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
     TimeZone timeZone = TimeZone.getTimeZone("Europe/Chisinau");
 
     SharedPreferences sharedPreferencesSettings;
     SharedPreferences sharedPreferencesAssortment;
     OrderServiceAPI orderServiceAPI;
+    BrokerServiceAPI brokerServiceAPI;
     ProgressDialog progressDialog;
     Realm mRealm;
     String token;
@@ -173,6 +196,7 @@ public class MainActivity extends AppCompatActivity  implements NavigationView.O
         simpleDateFormat.setTimeZone(timeZone);
         sharedPreferencesSettings = getSharedPreferences(sharedPreferenceSettings, MODE_PRIVATE);
         sharedPreferencesAssortment = getSharedPreferences(sharedPreferenceAssortment, MODE_PRIVATE);
+        brokerServiceAPI = BrokerRetrofitClient.getApiBrokerService();
         progressDialog = new ProgressDialog(context);
 
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawer, null, R.string.app_name, R.string.app_name);
@@ -191,6 +215,15 @@ public class MainActivity extends AppCompatActivity  implements NavigationView.O
         long tokenValid = sharedPreferencesSettings.getLong("tokenValid", 0);
         long currentTimeLong = new Date().getTime();
 
+        deviceModel = Build.MODEL;
+        deviceSN = Build.SERIAL;
+        deviceName = Build.DEVICE;
+        osVersion = Build.VERSION.RELEASE;
+        androidID = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
+        String deviceId = new UUID(androidID.hashCode(),androidID.hashCode()).toString();
+        publicIp = getPublicIPAddress(this);
+        privateIp = getIPAddress(true);
+
         if(tokenValid < currentTimeLong){
             String userName = sharedPreferencesSettings.getString("UserName","");
             String userPass = sharedPreferencesSettings.getString("UserPass","");
@@ -207,8 +240,13 @@ public class MainActivity extends AppCompatActivity  implements NavigationView.O
             });
             synchronizationFromStart();
         }
-        else
+        else {
             getInformationOrders();
+            String code = sharedPreferencesSettings.getString("LicenseActivationCode","");
+            String licenseID = sharedPreferencesSettings.getString("LicenseID", null);
+
+            getURI(licenseID, code);
+        }
 
         getNews();
 
@@ -252,9 +290,217 @@ public class MainActivity extends AppCompatActivity  implements NavigationView.O
         textShowAllDraft.setOnClickListener(textShowOrders);
     }
 
+    private String getIPAddress(boolean useIPv4) {
+        try {
+            List<NetworkInterface> interfaces = Collections.list(NetworkInterface.getNetworkInterfaces());
+            for (NetworkInterface intf : interfaces) {
+                List<InetAddress> addrs = Collections.list(intf.getInetAddresses());
+                for (InetAddress addr : addrs) {
+                    if (!addr.isLoopbackAddress()) {
+                        String sAddr = addr.getHostAddress();
+                        //boolean isIPv4 = InetAddressUtils.isIPv4Address(sAddr);
+                        boolean isIPv4 = sAddr.indexOf(':')<0;
+
+                        if (useIPv4) {
+                            if (isIPv4)
+                                return sAddr;
+                        } else {
+                            if (!isIPv4) {
+                                int delim = sAddr.indexOf('%'); // drop ip6 zone suffix
+                                return delim<0 ? sAddr.toUpperCase() : sAddr.substring(0, delim).toUpperCase();
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (Exception ignored) { } // for now eat exceptions
+        return "";
+    }
+
+    private String getPublicIPAddress(Context context) {
+        //final NetworkInfo info = NetworkUtils.getNetworkInfo(context);
+
+        ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        final NetworkInfo info = cm.getActiveNetworkInfo();
+
+        RunnableFuture<String> futureRun = new FutureTask<>(new Callable<String>() {
+            @Override
+            public String call() throws Exception {
+                if ((info != null && info.isAvailable()) && (info.isConnected())) {
+                    StringBuilder response = new StringBuilder();
+
+                    try {
+                        HttpURLConnection urlConnection = (HttpURLConnection) (
+                                new URL("http://checkip.amazonaws.com/").openConnection());
+                        urlConnection.setRequestProperty("User-Agent", "Android-device");
+                        //urlConnection.setRequestProperty("Connection", "close");
+                        urlConnection.setReadTimeout(1000);
+                        urlConnection.setConnectTimeout(1000);
+                        urlConnection.setRequestMethod("GET");
+                        urlConnection.setRequestProperty("Content-type", "application/json");
+                        urlConnection.connect();
+
+                        int responseCode = urlConnection.getResponseCode();
+
+                        if (responseCode == HttpURLConnection.HTTP_OK) {
+
+                            InputStream in = new BufferedInputStream(urlConnection.getInputStream());
+                            BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+
+                            String line;
+                            while ((line = reader.readLine()) != null) {
+                                response.append(line);
+                            }
+
+                        }
+                        urlConnection.disconnect();
+                        return response.toString();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                } else {
+                    //Log.w(TAG, "No network available INTERNET OFF!");
+                    return null;
+                }
+                return null;
+            }
+        });
+
+        new Thread(futureRun).start();
+
+        try {
+            return futureRun.get();
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    private String getAppVersion(Context context){
+        String result = "";
+
+        try{
+            result = context.getPackageManager().getPackageInfo(context.getPackageName(),0).versionName;
+            result = result.replaceAll("[a-zA-Z] |-","");
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+        }
+        return result;
+    }
+
+    private void getURI(String licenseID, String codeActivation) {
+        //data send to register app in broker server
+        SendGetURI registerApplication = new SendGetURI();
+
+        String ids = new UUID(androidID.hashCode(),androidID.hashCode()).toString();
+        registerApplication.setDeviceID(ids);
+        registerApplication.setDeviceModel(deviceModel);
+        registerApplication.setDeviceName(deviceName);
+        registerApplication.setSerialNumber(deviceSN);
+        registerApplication.setPrivateIP(privateIp);
+        registerApplication.setPublicIP(publicIp);
+        registerApplication.setLicenseID(licenseID);
+        registerApplication.setOSType(BrokerServiceEnum.Android);
+        registerApplication.setApplicationVersion(getAppVersion(this));
+        registerApplication.setProductType(BrokerServiceEnum.SalesAgent);
+        registerApplication.setOSVersion(osVersion);
+
+        Call<RegisterApplication> getURICall = brokerServiceAPI.getURICall(registerApplication);
+
+        getURICall.enqueue(new Callback<RegisterApplication>() {
+            @Override
+            public void onResponse(Call<RegisterApplication> call, Response<RegisterApplication> response) {
+                RegisterApplication result = response.body();
+                if (result == null){
+                    progressDialog.dismiss();
+                    Toast.makeText(context, "Response from broker server is null!", Toast.LENGTH_SHORT).show();
+                }
+                else{
+                    if(result.getErrorCode() == 0) {
+                        AppDataRegisterApplication appDataRegisterApplication = result.getAppData();
+                        //if app registered successful , save installation id and company name
+                        sharedPreferencesSettings.edit()
+                                .putString("LicenseID",appDataRegisterApplication.getLicenseID())
+                                .putString("LicenseCode",appDataRegisterApplication.getLicenseCode())
+                                .putString("CompanyName",appDataRegisterApplication.getCompany())
+                                .putString("CompanyIDNO",appDataRegisterApplication.getIDNO())
+                                .apply();
+
+                        if(appDataRegisterApplication.getURI() != null && !appDataRegisterApplication.getURI().equals("") && appDataRegisterApplication.getURI().length() > 5) {
+                            long nowDate = new Date().getTime();
+
+                            sharedPreferencesSettings.edit()
+                                    .putString("URI", appDataRegisterApplication.getURI())
+                                    .putLong("DateReceiveURI", nowDate)
+                                    .apply();
+                        }else{
+                            new MaterialAlertDialogBuilder(context, R.style.ThemeOverlay_MaterialComponents_MaterialAlertDialog)
+                                    .setTitle("URL not set!")
+                                    .setMessage("The application is not fully configured.")
+                                    .setCancelable(false)
+                                    .setPositiveButton("OK", (dialogInterface, i) -> {
+                                        finish();
+                                    })
+                                    .setNegativeButton("Retry",((dialogInterface, i) -> {
+                                        getURI(licenseID, codeActivation);
+                                    }))
+                                    .show();
+                        }
+                    }else if(result.getErrorCode() == 133){
+                        sharedPreferencesSettings.edit()
+                                .putString("LicenseID", null)
+                                .putString("LicenseCode","")
+                                .putString("CompanyName","")
+                                .putString("CompanyIDNO", "")
+                                .putBoolean("KeepMeSigned", false)
+                                .apply();
+
+                        new MaterialAlertDialogBuilder(context, R.style.ThemeOverlay_MaterialComponents_MaterialAlertDialog)
+                                .setTitle("Application not activated!")
+                                .setMessage("The application is not activated! Please activate can you continue.")
+                                .setCancelable(false)
+                                .setPositiveButton("OK", (dialogInterface, i) -> {
+                                    finish();
+                                })
+                                .show();
+                    }
+                    else if(result.getErrorCode() == 134){
+                        sharedPreferencesSettings.edit()
+                                .putString("LicenseID", null)
+                                .putString("LicenseCode","")
+                                .putString("CompanyName","")
+                                .putString("CompanyIDNO", "")
+                                .putBoolean("KeepMeSigned", false)
+                                .apply();
+
+                        new MaterialAlertDialogBuilder(context, R.style.ThemeOverlay_MaterialComponents_MaterialAlertDialog)
+                                .setTitle("License not activated!")
+                                .setMessage("The license for this application not activated! Please activate can you continue.")
+                                .setCancelable(false)
+                                .setPositiveButton("OK", (dialogInterface, i) -> {
+                                    Intent startActivity = new Intent(context, StartActivity.class);
+                                    startActivity(startActivity);
+                                    finish();
+                                })
+                                .setNegativeButton("Cancel",((dialogInterface, i) -> {
+                                    finish();
+                                }))
+                                .show();
+                    }
+                    else
+                        Toast.makeText(context, result.getErrorMessage(), Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<RegisterApplication> call, Throwable t) {
+                Toast.makeText(context, t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
     private void getNews() {
         int id = sharedPreferencesSettings.getInt("NewsID", 0);
-        BrokerServiceAPI brokerServiceAPI = BrokerRetrofitClient.getApiBrokerService();
 
         Call<GetNews> call = brokerServiceAPI.getNews(id, BrokerServiceEnum.SalesAgent);
 

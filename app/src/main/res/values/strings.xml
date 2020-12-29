@@ -149,4 +149,5 @@
     <string name="detail_news_header_activity">About news</string>
     <string name="send_diagnostic_item">Send diagnostic</string>
     <string name="create_order_assortment_activity_header">Create order</string>
+    <string name="settings_name_activity">Settings</string>
 </resources>

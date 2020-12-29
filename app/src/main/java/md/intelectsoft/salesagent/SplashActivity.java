@@ -32,10 +32,11 @@ public class SplashActivity extends AppCompatActivity {
 
         boolean keepSigned = getSharedPreferences(sharedPreferenceSettings, MODE_PRIVATE).getBoolean("KeepMeSigned", false);
         String token = getSharedPreferences(sharedPreferenceSettings, MODE_PRIVATE).getString("token","");
+        String licenseID = getSharedPreferences(sharedPreferenceSettings, MODE_PRIVATE).getString("LicenseID",null);
 
         new Timer().schedule(new TimerTask() {
             public void run() {
-                if(keepSigned && !token.equals(""))
+                if(keepSigned && !token.equals("") && licenseID != null)
                     startActivity(new Intent(SplashActivity.this, MainActivity.class));
                 else
                     startActivity(new Intent(SplashActivity.this, StartActivity.class));

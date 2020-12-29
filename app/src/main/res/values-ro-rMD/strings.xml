@@ -142,7 +142,7 @@
     <string name="information_about_application">Informații despre aplicație</string>
     <string name="general_settings">General</string>
     <string name="select_parameters_from_the_left_settings">Selectați parametrii din stânga</string>
-    <string name="shopping_cart_orders">Crearea comanzii</string>
+    <string name="shopping_cart_orders">Crearea comenzii</string>
     <string name="in_work_orders">În lucru</string>
     <string name="total_cost_order">Cost total:</string>
     <string name="draft_order">Schiță</string>
@@ -150,5 +150,6 @@
     <string name="news_header_title">Noutăți</string>
     <string name="detail_news_header_activity">Despre noutate</string>
     <string name="send_diagnostic_item">Trimiteți o diagnostică</string>
-    <string name="create_order_assortment_activity_header">Create order</string>
+    <string name="create_order_assortment_activity_header">Crearea comenzii</string>
+    <string name="settings_name_activity">Setări</string>
 </resources>

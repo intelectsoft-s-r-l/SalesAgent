@@ -26,13 +26,13 @@ import android.view.WindowManager;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 
@@ -115,8 +115,7 @@ public class StartActivity extends AppCompatActivity {
         String codeLicense = inputEditTextCode.getText().toString();
 
         if(codeLicense.equals("")){
-            if(codeLicense.equals(""))
-                inputLayoutIdno.setError(getString(R.string.input_filed_error));
+            inputLayoutIdno.setError(getString(R.string.input_filed_error));
         }
         else{
             //data send to register app in broker server
@@ -148,10 +147,7 @@ public class StartActivity extends AppCompatActivity {
                     + "\n setOSVersion: " + osVersion
                     + "\n setLicenseActivationCode: " + codeLicense);
 
-            //save register data on local device
-            sharedPreferencesSettings.edit()
-                    .putString("LicenseActivationCode",codeLicense)
-                    .apply();
+
 
             registerApplicationToBroker(registerApplication, codeLicense);
         }
@@ -226,13 +222,7 @@ public class StartActivity extends AppCompatActivity {
         Log.d("TAG", "onCreate broker ID: " + licenseID);
 
         deviceModel = Build.MODEL;
-
-        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.N_MR1)
-            deviceSN = Build.SERIAL;
-//        else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
-////            deviceSN = Build.getSerial();
-//        }
-
+        deviceSN = Build.SERIAL;
         deviceName = Build.DEVICE;
         osVersion = Build.VERSION.RELEASE;
         androidID = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
@@ -269,9 +259,6 @@ public class StartActivity extends AppCompatActivity {
             String code = sharedPreferencesSettings.getString("LicenseActivationCode","");
             //check URI and installation id
             getURI(licenseID, code,false);
-
-            //check installation id if valid from broker service
-            checkApplicationToUse();
         }
 
         inputEditTextLogin.addTextChangedListener(new TextWatcher() {
@@ -329,7 +316,7 @@ public class StartActivity extends AppCompatActivity {
 
     private void AskForPermissions() {
         List<String> listPermissionsNeeded = new ArrayList<>();
-        int readpermission = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE);
+        int readpermission = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE);
         int READ_PHONEpermission = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE);
 
         if (readpermission != PackageManager.PERMISSION_GRANTED) {
@@ -343,34 +330,6 @@ public class StartActivity extends AppCompatActivity {
             ActivityCompat.requestPermissions(this, listPermissionsNeeded.toArray(new String[listPermissionsNeeded.size()]), 1);
         }
     }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-
-        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.N_MR1)
-            deviceSN = Build.SERIAL;
-        else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
-
-            TelephonyManager sd = (TelephonyManager) StartActivity.this.getBaseContext().getSystemService(Context.TELEPHONY_SERVICE);
-
-            String test = sd.getSimOperatorName();
-
-
-
-//            deviceSN = Build.getSerial();
-        }
-
-        Log.e("TAG", "registerDeviceToBrokerService: "
-                + "\n setDeviceModel: " + deviceModel
-                + "\n setDeviceName: " + deviceName
-                + "\n setSerialNumber: " + deviceSN
-                + "\n setPrivateIP: " + privateIp
-                + "\n setPublicIP: " + publicIp
-                + "\n setOSType: " + BrokerServiceEnum.Android
-                + "\n setApplicationVersion: " + getAppVersion(this)
-                + "\n setOSVersion: " + osVersion);
-    }
-
 
     private String getIPAddress(boolean useIPv4) {
         try {
@@ -525,9 +484,16 @@ public class StartActivity extends AppCompatActivity {
                                 .putString("LicenseCode",appDataRegisterApplication.getLicenseCode())
                                 .putString("CompanyName",appDataRegisterApplication.getCompany())
                                 .putString("CompanyIDNO",appDataRegisterApplication.getIDNO())
+                                .putString("LicenseActivationCode",activationCode)
                                 .apply();
 
-                        if(appDataRegisterApplication.getURI() != null && !appDataRegisterApplication.getURI().equals("")){
+                        //after register app ,get URI for accounting system on broker server
+                        progressDialog.dismiss();
+
+                        registerForm.setVisibility(View.GONE);
+                        authForm.setVisibility(View.VISIBLE);
+
+                        if(appDataRegisterApplication.getURI() != null && !appDataRegisterApplication.getURI().equals("") && appDataRegisterApplication.getURI().length() > 5){
                             long nowDate = new Date().getTime();
                             String serverStringDate = appDataRegisterApplication.getServerDateTime();
                             serverStringDate = serverStringDate.replace("/Date(","");
@@ -541,18 +507,22 @@ public class StartActivity extends AppCompatActivity {
                                     .putLong("DateReceiveURI", nowDate)
                                     .putLong("ServerDate", serverDate)
                                     .apply();
-
-                            //after register app ,get URI for accounting system on broker server
-                            progressDialog.dismiss();
-
-                            registerForm.setVisibility(View.GONE);
-                            authForm.setVisibility(View.VISIBLE);
                         }
                         else{
-                            progressDialog.dismiss();
-                            getURI(appDataRegisterApplication.getLicenseID(), activationCode, true);
-                        }
 
+                            new MaterialAlertDialogBuilder(context, R.style.ThemeOverlay_MaterialComponents_MaterialAlertDialog)
+                                    .setTitle("URL not set!")
+                                    .setMessage("The application is not fully configured.")
+                                    .setCancelable(false)
+                                    .setPositiveButton("OK", (dialogInterface, i) -> {
+                                        finish();
+                                    })
+                                    .setNegativeButton("Retry",((dialogInterface, i) -> {
+                                        getURI(appDataRegisterApplication.getLicenseID(), activationCode, true);
+                                    }))
+                                    .show();
+
+                        }
                     }
                     else {
                         progressDialog.dismiss();
@@ -611,6 +581,8 @@ public class StartActivity extends AppCompatActivity {
                 if (result == null){
                     progressDialog.dismiss();
                     Toast.makeText(context, "Response from broker server is null!", Toast.LENGTH_SHORT).show();
+                    //check installation id if valid from broker service
+                    checkApplicationToUse();
                 }
                 else{
                     if(result.getErrorCode() == 0) {
@@ -623,7 +595,7 @@ public class StartActivity extends AppCompatActivity {
                                 .putString("CompanyIDNO",appDataRegisterApplication.getIDNO())
                                 .apply();
 
-                        if(appDataRegisterApplication.getURI() != null && !appDataRegisterApplication.getURI().equals("")) {
+                        if(appDataRegisterApplication.getURI() != null && !appDataRegisterApplication.getURI().equals("") && appDataRegisterApplication.getURI().length() > 5) {
                             long nowDate = new Date().getTime();
 
                             sharedPreferencesSettings.edit()
@@ -631,14 +603,67 @@ public class StartActivity extends AppCompatActivity {
                                     .putLong("DateReceiveURI", nowDate)
                                     .apply();
 
-                            if(fromRegistration){
-                                registerForm.setVisibility(View.GONE);
-                                authForm.setVisibility(View.VISIBLE);
-                            }
+                            //check installation id if valid from broker service
+                            checkApplicationToUse();
+                        }else{
+                            new MaterialAlertDialogBuilder(context, R.style.ThemeOverlay_MaterialComponents_MaterialAlertDialog)
+                                    .setTitle("URL not set!")
+                                    .setMessage("The application is not fully configured.")
+                                    .setCancelable(false)
+                                    .setPositiveButton("OK", (dialogInterface, i) -> {
+                                        finish();
+                                    })
+                                    .setNegativeButton("Retry",((dialogInterface, i) -> {
+                                        getURI(licenseID, codeActivation, fromRegistration);
+                                    }))
+                                    .show();
                         }
-                    } else
-                        Toast.makeText(context, result.getErrorMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                    else if(result.getErrorCode() == 133){
+                        sharedPreferencesSettings.edit()
+                                .putString("LicenseID", null)
+                                .putString("LicenseCode","")
+                                .putString("CompanyName","")
+                                .putString("CompanyIDNO", "")
+                                .putBoolean("KeepMeSigned", false)
+                                .apply();
 
+                        new MaterialAlertDialogBuilder(context, R.style.ThemeOverlay_MaterialComponents_MaterialAlertDialog)
+                                .setTitle("Application not activated!")
+                                .setMessage("The application is not activated! Please activate can you continue.")
+                                .setCancelable(false)
+                                .setPositiveButton("OK", (dialogInterface, i) -> {
+                                    finish();
+                                })
+                                .show();
+                    }
+                    else if(result.getErrorCode() == 134){
+                        sharedPreferencesSettings.edit()
+                                .putString("LicenseID", null)
+                                .putString("LicenseCode","")
+                                .putString("CompanyName","")
+                                .putString("CompanyIDNO", "")
+                                .putBoolean("KeepMeSigned", false)
+                                .apply();
+
+                        new MaterialAlertDialogBuilder(context, R.style.ThemeOverlay_MaterialComponents_MaterialAlertDialog)
+                                .setTitle("License not activated!")
+                                .setMessage("The license for this application not activated! Please activate can you continue.")
+                                .setCancelable(false)
+                                .setPositiveButton("OK", (dialogInterface, i) -> {
+                                    authForm.setVisibility(View.GONE);
+                                    registerForm.setVisibility(View.VISIBLE);
+                                })
+                                .setNegativeButton("Cancel",((dialogInterface, i) -> {
+                                    finish();
+                                }))
+                                .show();
+                    }
+                    else {
+                        Toast.makeText(context, result.getErrorMessage(), Toast.LENGTH_SHORT).show();
+                        //check installation id if valid from broker service
+                        checkApplicationToUse();
+                    }
                     progressDialog.dismiss();
                 }
             }
@@ -647,6 +672,9 @@ public class StartActivity extends AppCompatActivity {
             public void onFailure(Call<RegisterApplication> call, Throwable t) {
                 progressDialog.dismiss();
                 Toast.makeText(context, t.getMessage(), Toast.LENGTH_SHORT).show();
+
+                //check installation id if valid from broker service
+                checkApplicationToUse();
             }
         });
     }
@@ -655,7 +683,6 @@ public class StartActivity extends AppCompatActivity {
         boolean restriction = false;
 
         // get all date for check it
-        long dateValidInstallationID = sharedPreferencesSettings.getLong("DateInstallationIDValid",0);
         long dateReceiveURI = sharedPreferencesSettings.getLong("DateReceiveURI",0);
         long oneDay = 86400000;
         long dateLimitCanUseApp = dateReceiveURI + (oneDay * 60);
@@ -663,7 +690,7 @@ public class StartActivity extends AppCompatActivity {
         long currentDate = new Date().getTime();
 
         //check if user can use application
-        restriction = currentDate < dateValidInstallationID && currentDate < dateLimitCanUseApp && currentDate > brokerServerDate;
+        restriction = currentDate < dateLimitCanUseApp && currentDate > brokerServerDate;
 
         //check if user can use application
         if (restriction){

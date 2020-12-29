@@ -64,7 +64,7 @@ public class SettingsActivity extends AppCompatActivity {
         ButterKnife.bind(this);
         ButterKnife.setDebug(true);
 
-        setNameTextColor("Settings");
+        setNameTextColor(getString(R.string.settings_name_activity));
         fgManager = getSupportFragmentManager();
     }
 

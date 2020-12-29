@@ -1,7 +1,5 @@
 package md.intelectsoft.salesagent.OrderServiceUtils;
 
-import android.util.Log;
-
 import java.io.IOException;
 import java.security.cert.CertificateException;
 import java.util.concurrent.TimeUnit;
@@ -31,8 +29,6 @@ public class OrderRetrofitClient {
                     .addConverterFactory(GsonConverterFactory.create())
                     .client(getOkHttpClient())
                     .build();
-
-        Log.e("TAG", "getApiOrderService: " + retrofit.baseUrl().url().getHost());
 
         return retrofit.create(OrderServiceAPI.class);
     }

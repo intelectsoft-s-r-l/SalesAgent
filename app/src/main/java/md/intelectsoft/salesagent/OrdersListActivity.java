@@ -15,6 +15,7 @@ import android.os.Bundle;
 import android.text.SpannableString;
 import android.text.style.ForegroundColorSpan;
 import android.util.Base64;
+import android.util.Log;
 import android.view.ActionMode;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -300,12 +301,17 @@ public class OrdersListActivity extends AppCompatActivity {
             if(actionMode != null)
                 actionMode.finish();
             else{
-                String idRequest = adapterListRequest.getItem(position).getInternId();
-                String uidRequest = adapterListRequest.getItem(position).getUid();
+                clickedRequest = adapterListRequest.getItem(position);
+                String idRequest = clickedRequest.getInternId();
+                String uidRequest = clickedRequest.getUid();
 
                 Intent detail = new Intent(context, OrderDetailActivity.class);
+                detail.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 detail.putExtra("uid", uidRequest);
                 detail.putExtra("id",idRequest);
+
+                Log.e("TAG", "onCreate: " + " id : " + idRequest + " uid: " + uidRequest  + " position: " + position + "\n Client name: " + clickedRequest.getClientName());
+
                 startActivity(detail);
             }
         });
@@ -484,38 +490,45 @@ public class OrdersListActivity extends AppCompatActivity {
                         public void onResponse(Call<GetPrintRequest> call, Response<GetPrintRequest> response) {
                             GetPrintRequest printRequest = response.body();
                             progressDialog.dismiss();
-                            if(printRequest.getErrorCode() == 0){
-                                String imageFile = printRequest.getImageFile();
+                            if(printRequest != null) {
+                                if (printRequest.getErrorCode() == 0) {
+                                    String imageFile = printRequest.getImageFile();
 
-                                byte[] decodedString = Base64.decode(imageFile, Base64.DEFAULT);
-                                Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
+                                    byte[] decodedString = Base64.decode(imageFile, Base64.DEFAULT);
+                                    Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
 
-                                // save bitmap to cache directory
-                                try {
+                                    // save bitmap to cache directory
+                                    try {
 
-                                    File cachePath = new File(context.getCacheDir(), "images");
-                                    cachePath.mkdirs(); // don't forget to make the directory
-                                    FileOutputStream stream = new FileOutputStream(cachePath + "/image.png"); // overwrites this image every time
-                                    decodedByte.compress(Bitmap.CompressFormat.PNG, 100, stream);
-                                    stream.close();
+                                        File cachePath = new File(context.getCacheDir(), "images");
+                                        cachePath.mkdirs(); // don't forget to make the directory
+                                        FileOutputStream stream = new FileOutputStream(cachePath + "/image.png"); // overwrites this image every time
+                                        decodedByte.compress(Bitmap.CompressFormat.PNG, 100, stream);
+                                        stream.close();
 
-                                } catch (IOException e) {
-                                    e.printStackTrace();
+                                    } catch (IOException e) {
+                                        e.printStackTrace();
+                                    }
+
+                                    File imagePath = new File(context.getCacheDir(), "images");
+                                    File newFile = new File(imagePath, "image.png");
+                                    Uri contentUri = FileProvider.getUriForFile(context, "md.intelectsoft.salesagent.fileprovider", newFile);
+
+                                    if (contentUri != null) {
+                                        Intent shareIntent = new Intent();
+                                        shareIntent.setAction(Intent.ACTION_SEND);
+                                        shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION); // temp permission for receiving app to read this file
+                                        shareIntent.setDataAndType(contentUri, getContentResolver().getType(contentUri));
+                                        shareIntent.putExtra(Intent.EXTRA_STREAM, contentUri);
+
+                                        startActivity(Intent.createChooser(shareIntent, "Share document!"));
+                                    }
+                                }else{
+                                    Toast.makeText(OrdersListActivity.this, "Error download image!Code: " + printRequest.getErrorCode(), Toast.LENGTH_SHORT).show();
                                 }
-
-                                File imagePath = new File(context.getCacheDir(), "images");
-                                File newFile = new File(imagePath, "image.png");
-                                Uri contentUri = FileProvider.getUriForFile(context, "md.intelectsoft.eagent.fileprovider", newFile);
-
-                                if (contentUri != null) {
-                                    Intent shareIntent = new Intent();
-                                    shareIntent.setAction(Intent.ACTION_SEND);
-                                    shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION); // temp permission for receiving app to read this file
-                                    shareIntent.setDataAndType(contentUri, getContentResolver().getType(contentUri));
-                                    shareIntent.putExtra(Intent.EXTRA_STREAM, contentUri);
-
-                                    startActivity(Intent.createChooser(shareIntent, "Share document!"));
-                                }
+                            }
+                            else{
+                                Toast.makeText(OrdersListActivity.this, "Error download image!Response is null :(", Toast.LENGTH_SHORT).show();
                             }
                         }
 
@@ -586,28 +599,35 @@ public class OrdersListActivity extends AppCompatActivity {
 
     private void showOrdersConformState(int stateAction) {
         RealmResults<Request> result = null;
+        int states = 100;
         mRealm.beginTransaction();
         switch (stateAction){
             case 97: {
-                result = mRealm.where(Request.class).equalTo("state",BaseEnum.Draft).findAllAsync();
+                states = BaseEnum.Draft;
             }break;
             case 98: {
-                result = mRealm.where(Request.class).equalTo("state",BaseEnum.InQueue).findAllAsync();
+                states = BaseEnum.InQueue;
             }break;
             case 99: {
-                result = mRealm.where(Request.class).equalTo("state",BaseEnum.InWork).findAllAsync();
+                states = BaseEnum.InWork;
             }break;
             case 100: {
-                result = mRealm.where(Request.class).findAllAsync();
+                states = 100;
             }break;
         }
+        if(stateAction != 100)
+            result = mRealm.where(Request.class).equalTo("state",states).findAll();
+        else
+            result = mRealm.where(Request.class).findAll();
         mRealm.commitTransaction();
 
         adapterListRequest = new AdapterListRequest(result,context);
         ordersList.setAdapter(adapterListRequest);
 
-        assert result != null;
-        result.addChangeListener(realmChangeListener);
+        Log.e("TAG", "showOrdersConformState: " + adapterListRequest.getCount());
+
+//        assert result != null;
+//        result.addChangeListener(realmChangeListener);
 
     }
 
