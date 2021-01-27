@@ -20,12 +20,16 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
@@ -164,7 +168,7 @@ public class StartActivity extends AppCompatActivity {
         }
         else{
             if(userName.equals("") || userPass.equals("")){
-               if(userName.equals(""))
+                if(userName.equals(""))
                    inputLayoutLogin.setError(getString(R.string.input_filed_error));
                 if(userPass.equals(""))
                     inputLayoutPasswordLogin.setError(getString(R.string.input_filed_error));
@@ -746,7 +750,7 @@ public class StartActivity extends AppCompatActivity {
 
                             long timeValid = Long.parseLong(dateValid);
 
-                            String userFullName = user.getUser().getName() != null ? user.getUser().getName() : ""  + user.getUser().getSurname() != null ? user.getUser().getSurname(): "";
+                            String userFullName = user.getUser().getName() != null ? user.getUser().getName() : "" + user.getUser().getSurname() != null ? user.getUser().getSurname(): "";
                             sharedPreferencesSettings.edit()
                                     .putLong("tokenValid",timeValid)
                                     .putString("token",tokenId)
@@ -777,6 +781,22 @@ public class StartActivity extends AppCompatActivity {
                 Log.e("TAG", "onFailure:  "  + call.request());
             }
         });
+    }
 
+    @Override
+    public boolean dispatchTouchEvent(@NonNull MotionEvent event) {
+        if (event.getAction() == MotionEvent.ACTION_DOWN) {
+            View v = getCurrentFocus();
+            hideSystemUI();
+            if (v instanceof EditText) {
+                v.clearFocus();
+                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                if (imm != null) {
+                    imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
+                }
+            }
+        }
+
+        return super.dispatchTouchEvent(event);
     }
 }

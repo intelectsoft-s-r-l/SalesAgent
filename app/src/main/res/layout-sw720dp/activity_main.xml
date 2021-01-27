@@ -263,10 +263,26 @@
             android:layout_width="96dp"
             android:layout_height="96dp"
             android:layout_marginStart="16dp"
+            android:visibility="invisible"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:srcCompat="@drawable/image_agent_test" />
+
+        <TextView
+            android:id="@+id/textViewShortNameUser"
+            android:layout_width="96dp"
+            android:layout_height="96dp"
+            android:layout_marginStart="16dp"
+            android:background="@drawable/background_yellow_username"
+            android:gravity="center"
+            android:text="SA"
+            android:textColor="@color/white"
+            android:textAllCaps="true"
+            android:textSize="36sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
             android:id="@+id/textAgentFullName"
@@ -285,10 +301,13 @@
 
         <TextView
             android:id="@+id/textLastVisitAgent"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="3dp"
+            android:layout_marginEnd="8dp"
             app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/divider"
+            app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="@+id/textAgentFullName"
             app:layout_constraintTop_toBottomOf="@+id/textAgentFullName" />
     </androidx.constraintlayout.widget.ConstraintLayout>

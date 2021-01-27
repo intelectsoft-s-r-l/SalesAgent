@@ -1,6 +1,8 @@
 package md.intelectsoft.salesagent.Adapters;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -52,18 +54,40 @@ public class AdapterClientsList extends BaseAdapter {
         private final TextView idnp;
         private final ImageView image;
         private final TextView pointOfSales;
+        private final TextView shortName;
 
         public ViewHolder(View view) {
             name = view.findViewById(R.id.textListClientName);
             pointOfSales = view.findViewById(R.id.textListClientPointOfSales);
             idnp = view.findViewById(R.id.textListClientIDNP);
             image = view.findViewById(R.id.imageClient);
+            shortName = view.findViewById(R.id.textViewClientShortName);
         }
 
         public void bind(Client item) {
             name.setText(item.getName());
             idnp.setText(item.getIDNP());
             pointOfSales.setText(String.valueOf(item.getOutlets().size()));
+
+            if(item.getImage() != null) {
+                if(item.getImage().length > 0){
+                    shortName.setVisibility(View.GONE);
+                    image.setVisibility(View.VISIBLE);
+                    Bitmap bmpImage = BitmapFactory.decodeByteArray(item.getImage(), 0, item.getImage().length);
+                    image.setImageBitmap(Bitmap.createScaledBitmap(bmpImage, 211, 211, false));
+                }
+                else{
+                    shortName.setVisibility(View.VISIBLE);
+                    image.setVisibility(View.INVISIBLE);
+                    shortName.setText(item.getName().substring(0,2));
+                }
+            }
+            else{
+                shortName.setVisibility(View.VISIBLE);
+                image.setVisibility(View.INVISIBLE);
+                shortName.setText(item.getName().substring(0,2));
+            }
+
 
 
 //            vote.setText(String.valueOf(contestant.getVotes()));

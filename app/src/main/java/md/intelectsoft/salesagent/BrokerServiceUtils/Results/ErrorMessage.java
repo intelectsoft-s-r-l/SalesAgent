@@ -6,16 +6,16 @@ import com.google.gson.annotations.SerializedName;
 public class ErrorMessage {
     @SerializedName("ErrorCode")
     @Expose
-    private String errorCode;
+    private int errorCode;
     @SerializedName("ErrorMessage")
     @Expose
     private String errorMessage;
 
-    public String getErrorCode() {
+    public int getErrorCode() {
         return errorCode;
     }
 
-    public void setErrorCode(String errorCode) {
+    public void setErrorCode(int errorCode) {
         this.errorCode = errorCode;
     }
 

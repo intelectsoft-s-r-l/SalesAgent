@@ -51,6 +51,7 @@ import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.URL;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -77,6 +78,7 @@ import md.intelectsoft.salesagent.BrokerServiceUtils.Body.SendGetURI;
 import md.intelectsoft.salesagent.BrokerServiceUtils.BrokerRetrofitClient;
 import md.intelectsoft.salesagent.BrokerServiceUtils.BrokerServiceAPI;
 import md.intelectsoft.salesagent.BrokerServiceUtils.Results.AppDataRegisterApplication;
+import md.intelectsoft.salesagent.BrokerServiceUtils.Results.ErrorMessage;
 import md.intelectsoft.salesagent.BrokerServiceUtils.Results.GetNews;
 import md.intelectsoft.salesagent.BrokerServiceUtils.Results.NewsList;
 import md.intelectsoft.salesagent.BrokerServiceUtils.Results.RegisterApplication;
@@ -89,6 +91,9 @@ import md.intelectsoft.salesagent.OrderServiceUtils.Results.ClientPriceLists;
 import md.intelectsoft.salesagent.OrderServiceUtils.Results.PriceList;
 import md.intelectsoft.salesagent.OrderServiceUtils.Results.RequestList;
 import md.intelectsoft.salesagent.OrderServiceUtils.Results.TokenResult;
+import md.intelectsoft.salesagent.OrderServiceUtils.Results.assortmentImages.GetAssortmentImages;
+import md.intelectsoft.salesagent.OrderServiceUtils.Results.assortmentImages.ImageAssortment;
+import md.intelectsoft.salesagent.OrderServiceUtils.body.AssortmentImages;
 import md.intelectsoft.salesagent.RealmUtils.Assortment;
 import md.intelectsoft.salesagent.RealmUtils.Client;
 import md.intelectsoft.salesagent.RealmUtils.Request;
@@ -116,6 +121,8 @@ public class MainActivity extends AppCompatActivity  implements NavigationView.O
     @BindView(R.id.countConfirmedOrders) TextView countConfirmedOrders;
     @BindView(R.id.countInQueueOrders) TextView countInQueueOrders;
     @BindView(R.id.countDraftOrders) TextView countDraftOrders;
+
+    @BindView(R.id.textViewShortNameUser) TextView shortNameAgent;
 
     String androidID, deviceName, publicIp, privateIp, deviceSN, osVersion, deviceModel;
 
@@ -208,6 +215,8 @@ public class MainActivity extends AppCompatActivity  implements NavigationView.O
         token = sharedPreferencesSettings.getString("token","");
         orderServiceAPI = OrderRetrofitClient.getApiOrderService(uri);
         agentFullName.setText(fullName);
+        shortNameAgent.setText(fullName.substring(0,2));
+
 
         boolean firstStart = sharedPreferencesSettings.getBoolean("FirstStart", false);
         boolean syncToStart = sharedPreferencesSettings.getBoolean("syncToStart", false);
@@ -232,13 +241,9 @@ public class MainActivity extends AppCompatActivity  implements NavigationView.O
         }
 
         if(firstStart)
-            synchronizationFromStart();
+            synchronizationFromStart(true);
         else if(syncToStart){
-            mRealm.executeTransaction(realm -> {
-                realm.delete(Assortment.class);
-                realm.delete(Client.class);
-            });
-            synchronizationFromStart();
+            synchronizationFromStart(false);
         }
         else {
             getInformationOrders();
@@ -254,9 +259,11 @@ public class MainActivity extends AppCompatActivity  implements NavigationView.O
         TextView sessionNavValidTo = headerLayout.findViewById(R.id.textSessionValidTo);
         TextView navNameAgent = headerLayout.findViewById(R.id.textNameAgentNav);
         ImageButton logOut = headerLayout.findViewById(R.id.buttonLogOut);
+        TextView textShortName = headerLayout.findViewById(R.id.textNavShortNameAgent);
 
         navigationView.setNavigationItemSelectedListener(this);
 
+        textShortName.setText(fullName.substring(0,2));
         navNameAgent.setText(fullName);
         sessionNavValidTo.setText(getString(R.string.session_valid_text) + simpleDateFormat.format(tokenValid));
         logOut.setOnClickListener(v -> {
@@ -599,7 +606,7 @@ public class MainActivity extends AppCompatActivity  implements NavigationView.O
         showInformationOfRequests();
     }
 
-    private void synchronizationFromStart(){
+    private void synchronizationFromStart(boolean auto){
         //load assortment
         Call<AssortmentList> assortmentListCall = orderServiceAPI.getAssortmentList(token);
 
@@ -617,6 +624,11 @@ public class MainActivity extends AppCompatActivity  implements NavigationView.O
                         RealmList<Assortment> assortments = assortmentList.getAssortment();
 
                         if(assortments != null && assortments.size() > 0){
+                            if(!auto){
+                                mRealm.executeTransaction(realm -> {
+                                    realm.delete(Assortment.class);
+                                });
+                            }
                             mRealm.executeTransaction(realm -> {
                                 realm.insert(assortments);
 
@@ -633,9 +645,16 @@ public class MainActivity extends AppCompatActivity  implements NavigationView.O
                                     }
                                 }
                             });
+                            MainActivity.this.runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    getImagesForAssortment(assortments);
+                                }
+                            });
+
 
                             //load price lists
-                            getPriceLists();
+                            getPriceLists(auto);
                         }
                         else{
                             progressDialog.dismiss();
@@ -661,7 +680,49 @@ public class MainActivity extends AppCompatActivity  implements NavigationView.O
         });
     }
 
-    private void getPriceLists() {
+    private void getImagesForAssortment(RealmList<Assortment> assortmentList) {
+        List<String> listOfUid = new ArrayList<>();
+        for(Assortment item: assortmentList){
+            if(!item.getFolder())
+                listOfUid.add(item.getUid());
+        }
+        AssortmentImages imageForDownload = new AssortmentImages();
+        imageForDownload.setAssortiment(listOfUid);
+        imageForDownload.setTokenUid(token);
+
+        Call<GetAssortmentImages> call = orderServiceAPI.getAssortmentImages(imageForDownload);
+        call.enqueue(new Callback<GetAssortmentImages>() {
+            @Override
+            public void onResponse(Call<GetAssortmentImages> call, Response<GetAssortmentImages> response) {
+                GetAssortmentImages getAssortmentImages = response.body();
+                if(getAssortmentImages != null){
+                    if(getAssortmentImages.getErrorCode() == 0){
+                        List<ImageAssortment> images = getAssortmentImages.getImages();
+                        if(images != null && images.size() > 0){
+                            mRealm.executeTransaction(realm -> {
+                                for(ImageAssortment image : images){
+                                    if(image.getImage1() != null){
+                                        if(image.getImage1().length > 0) {
+                                            Assortment item = mRealm.where(Assortment.class).equalTo("uid", image.getUid()).findFirst();
+                                            if (item != null)
+                                                item.setImage(image.getImage1());
+                                        }
+                                    }
+                                }
+                            });
+                        }
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<GetAssortmentImages> call, Throwable t) {
+
+            }
+        });
+    }
+
+    private void getPriceLists(boolean auto) {
         Call<ClientPriceLists> clientPriceListsCall = orderServiceAPI.getClientPriceLists(token);
 
         clientPriceListsCall.enqueue(new Callback<ClientPriceLists>() {
@@ -693,7 +754,7 @@ public class MainActivity extends AppCompatActivity  implements NavigationView.O
                 }
 
                 //load client list
-                getClients();
+                getClients(auto);
             }
 
             @Override
@@ -703,7 +764,7 @@ public class MainActivity extends AppCompatActivity  implements NavigationView.O
         });
     }
 
-    private void getClients(){
+    private void getClients(boolean auto){
         //load clients
         Call<ClientList> clientListCall = orderServiceAPI.getClients(token);
 
@@ -716,6 +777,12 @@ public class MainActivity extends AppCompatActivity  implements NavigationView.O
                         RealmList<Client> client = clientList.getClients();
 
                         if(client != null && client.size() > 0){
+                            if(!auto){
+                                mRealm.executeTransaction(realm -> {
+                                    realm.delete(Client.class);
+                                });
+                            }
+
                             mRealm.executeTransaction(realm -> realm.insert(client));
 
                             long dateSync = new Date().getTime();
@@ -739,7 +806,6 @@ public class MainActivity extends AppCompatActivity  implements NavigationView.O
                     progressDialog.dismiss();
                     Toast.makeText(context, "Null response client list!", Toast.LENGTH_SHORT).show();
                 }
-
                 getInformationOrders();
             }
 
@@ -969,18 +1035,9 @@ public class MainActivity extends AppCompatActivity  implements NavigationView.O
         }
 
         else if(id == R.id.syncItemMenu){
-            mRealm.executeTransaction(realm -> {
-                realm.delete(Assortment.class);
-                realm.delete(Client.class);
-            });
-            synchronizationFromStart();
+            synchronizationFromStart(false);
         }
         else if(id == R.id.diagnosticItemMenu){
-            String licenseID = sharedPreferencesSettings.getString("LicenseID","");
-
-            InformationData informationData = new InformationData();
-
-            informationData.setLicenseID(licenseID);
 
             JSONObject informationArray = new JSONObject();
             JSONObject battery = getBatteryInformation(this);
@@ -993,13 +1050,36 @@ public class MainActivity extends AppCompatActivity  implements NavigationView.O
                 informationArray.put("Battery", battery);
                 informationArray.put("Memory", memory);
                 informationArray.put("CPU", cpu);
+                informationArray.put("WiFi", wifi);
 
                 Log.e("TAG", "onNavigationItemSelected JSON array: " + informationArray.toString());
             } catch (JSONException e) {
                 e.printStackTrace();
             }
+            String licenseID = sharedPreferencesSettings.getString("LicenseID", null);
 
+            InformationData data = new InformationData();
+            data.setLicenseID(licenseID);
+            data.setInformation(informationArray.toString());
+
+            Call<ErrorMessage> call = brokerServiceAPI.updateDiagnosticInfo(data);
+            call.enqueue(new Callback<ErrorMessage>() {
+                @Override
+                public void onResponse(Call<ErrorMessage> call, Response<ErrorMessage> response) {
+                    ErrorMessage message = response.body();
+                    if(message.getErrorCode() == 0)
+                        Toast.makeText(context, "Diagnostic report send!", Toast.LENGTH_SHORT).show();
+                    else
+                        Toast.makeText(context, "Diagnostic report not send!Message: " + message.getErrorMessage(), Toast.LENGTH_SHORT).show();
+                }
+
+                @Override
+                public void onFailure(Call<ErrorMessage> call, Throwable t) {
+                    Toast.makeText(context, "Diagnostic report not send!" + t.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            });
         }
+
 
         drawer.closeDrawer(GravityCompat.START);
 

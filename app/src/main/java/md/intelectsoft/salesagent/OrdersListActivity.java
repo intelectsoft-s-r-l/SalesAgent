@@ -8,13 +8,17 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.SpannableString;
 import android.text.style.ForegroundColorSpan;
 import android.util.Base64;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.ActionMode;
 import android.view.Menu;
@@ -43,6 +47,7 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.TimeZone;
 
 import butterknife.BindView;
@@ -56,6 +61,7 @@ import io.realm.RealmResults;
 import io.realm.Sort;
 import md.intelectsoft.salesagent.Adapters.AdapterListRequest;
 import md.intelectsoft.salesagent.AppUtils.BaseEnum;
+import md.intelectsoft.salesagent.AppUtils.LocaleHelper;
 import md.intelectsoft.salesagent.OrderServiceUtils.OrderRetrofitClient;
 import md.intelectsoft.salesagent.OrderServiceUtils.OrderServiceAPI;
 import md.intelectsoft.salesagent.OrderServiceUtils.Results.GetPrintRequest;
@@ -262,6 +268,9 @@ public class OrdersListActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        String lang = LocaleHelper.getLanguage(this);
+
+        setAppLocale(lang);
         setContentView(R.layout.activity_orders_list);
         ButterKnife.bind(this);
         ButterKnife.setDebug(true);
@@ -324,6 +333,19 @@ public class OrdersListActivity extends AppCompatActivity {
             actionMode.setTitle(clickedRequest.getCode() + " " + clickedRequest.getClientName());
             return true;
         });
+    }
+
+    private void setAppLocale(String localeCode){
+        Resources resources = getResources();
+        DisplayMetrics dm = resources.getDisplayMetrics();
+        Configuration config = resources.getConfiguration();
+
+        if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.JELLY_BEAN_MR1){
+            config.setLocale(new Locale(localeCode.toLowerCase()));
+        } else {
+            config.locale = new Locale(localeCode.toLowerCase());
+        }
+        resources.updateConfiguration(config, dm);
     }
 
     public ActionMode.Callback callback = new ActionMode.Callback() {

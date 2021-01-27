@@ -33,9 +33,15 @@ public class Assortment extends RealmObject {
     @SerializedName("Uid")
     @Expose
     private String uid;
+    @SerializedName("CountInPackage")
+    @Expose
+    private Double countInPackage;
     @SerializedName("Marking")
     @Expose
     private String marking;
+    @SerializedName("NonWhole")
+    @Expose
+    private boolean nonWhole;
     @SerializedName("Price")
     @Expose
     private Double price;
@@ -45,6 +51,9 @@ public class Assortment extends RealmObject {
     @SerializedName("Remain")
     @Expose
     private Double remain;
+    @SerializedName("UnitInPackage")
+    @Expose
+    private String unitInPackage;
     @SerializedName("UnitName")
     @Expose
     private String unitName;
@@ -56,6 +65,8 @@ public class Assortment extends RealmObject {
     private double qauntity;
 
     private double priceDiscount;
+
+    private byte[] image;
 
     public double getQauntity() {
         return qauntity;
@@ -191,5 +202,37 @@ public class Assortment extends RealmObject {
 
     public void setPriceDiscount(double priceDiscount) {
         this.priceDiscount = priceDiscount;
+    }
+
+    public Double getCountInPackage() {
+        return countInPackage;
+    }
+
+    public void setCountInPackage(Double countInPackage) {
+        this.countInPackage = countInPackage;
+    }
+
+    public boolean isNonWhole() {
+        return nonWhole;
+    }
+
+    public void setNonWhole(boolean nonWhole) {
+        this.nonWhole = nonWhole;
+    }
+
+    public String getUnitInPackage() {
+        return unitInPackage;
+    }
+
+    public void setUnitInPackage(String unitInPackage) {
+        this.unitInPackage = unitInPackage;
+    }
+
+    public byte[] getImage() {
+        return image;
+    }
+
+    public void setImage(byte[] image) {
+        this.image = image;
     }
 }

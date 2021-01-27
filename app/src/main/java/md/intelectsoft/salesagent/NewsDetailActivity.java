@@ -1,13 +1,17 @@
 package md.intelectsoft.salesagent;
 
 import android.annotation.SuppressLint;
+import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.Html;
 import android.text.SpannableString;
 import android.text.style.ForegroundColorSpan;
 import android.util.Base64;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -15,12 +19,14 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 
 import java.text.SimpleDateFormat;
+import java.util.Locale;
 import java.util.TimeZone;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import io.realm.Realm;
+import md.intelectsoft.salesagent.AppUtils.LocaleHelper;
 import md.intelectsoft.salesagent.BrokerServiceUtils.Results.NewsList;
 
 @SuppressLint("NonConstantResourceId")
@@ -40,6 +46,9 @@ public class NewsDetailActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        String lang = LocaleHelper.getLanguage(this);
+
+        setAppLocale(lang);
         setContentView(R.layout.activity_news_detail);
         ButterKnife.bind(this);
         ButterKnife.setDebug(true);
@@ -66,6 +75,19 @@ public class NewsDetailActivity extends AppCompatActivity {
 
             photo.setImageBitmap(photoNews);
         }
+    }
+
+    private void setAppLocale(String localeCode){
+        Resources resources = getResources();
+        DisplayMetrics dm = resources.getDisplayMetrics();
+        Configuration config = resources.getConfiguration();
+
+        if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.JELLY_BEAN_MR1){
+            config.setLocale(new Locale(localeCode.toLowerCase()));
+        } else {
+            config.locale = new Locale(localeCode.toLowerCase());
+        }
+        resources.updateConfiguration(config, dm);
     }
 
     private void setNameTextColor(){

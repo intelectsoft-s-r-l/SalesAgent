@@ -1,6 +1,8 @@
 package md.intelectsoft.salesagent.Adapters;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -84,8 +86,18 @@ public class AdapterProductsListToOrder extends BaseAdapter {
             }
             else{
                 layoutPrices.setVisibility(View.VISIBLE);
-                image.setImageDrawable(context.getDrawable(R.drawable.product_image));
                 price.setText(item.getPrice() + " MDL");
+
+                if(item.getImage() != null){
+                    if(item.getImage().length > 0) {
+                        Bitmap productImg = BitmapFactory.decodeByteArray(item.getImage(), 0, item.getImage().length);
+                        image.setImageBitmap(productImg);
+                    }
+                }
+                else{
+                    image.setImageDrawable(context.getDrawable(R.drawable.product_image));
+                }
+
 
                 if(preview)
                     addToCart.setVisibility(View.GONE);

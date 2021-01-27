@@ -5,10 +5,13 @@ import md.intelectsoft.salesagent.OrderServiceUtils.Results.AuthorizeUser;
 import md.intelectsoft.salesagent.OrderServiceUtils.Results.ClientList;
 import md.intelectsoft.salesagent.OrderServiceUtils.Results.ClientPriceLists;
 import md.intelectsoft.salesagent.OrderServiceUtils.Results.ClientPrices;
+import md.intelectsoft.salesagent.OrderServiceUtils.Results.ClientResponseInfo;
 import md.intelectsoft.salesagent.OrderServiceUtils.Results.GetPrintRequest;
 import md.intelectsoft.salesagent.OrderServiceUtils.Results.RequestList;
 import md.intelectsoft.salesagent.OrderServiceUtils.Results.SaveRequestResult;
 import md.intelectsoft.salesagent.OrderServiceUtils.Results.assortmentDescription.AssortmentDescription;
+import md.intelectsoft.salesagent.OrderServiceUtils.Results.assortmentImages.GetAssortmentImages;
+import md.intelectsoft.salesagent.OrderServiceUtils.body.AssortmentImages;
 import md.intelectsoft.salesagent.OrderServiceUtils.body.ClientPricesBody;
 import md.intelectsoft.salesagent.OrderServiceUtils.body.saveRequest.SaveRequestBody;
 import retrofit2.Call;
@@ -43,7 +46,7 @@ public interface OrderServiceAPI {
     Call<ClientPrices> getClientPriceDiscount (@Body ClientPricesBody listPriceBody);
 
     @GET("json/GetContragent")
-    Call<ClientList> getClientInfo (@Query("tokenUid") String tokenUid, @Query("clientUid") String clientUid);
+    Call<ClientResponseInfo> getClientInfo (@Query("tokenUid") String tokenUid, @Query("clientUid") String clientUid);
 
     @GET("json/DeleteRequest")
     Call<RequestList> deleteRequest (@Query("tokenUid") String token, @Query("invoiceUid") String invoiceId);
@@ -56,4 +59,7 @@ public interface OrderServiceAPI {
 
     @GET("json/GetPrintRequest")
     Call<GetPrintRequest> getPrintRequest (@Query("tokenUid") String token, @Query("requestUid") String requestUid);
+
+    @POST("json/GetAssortimentImages")
+    Call<GetAssortmentImages> getAssortmentImages(@Body AssortmentImages assortments);
 }

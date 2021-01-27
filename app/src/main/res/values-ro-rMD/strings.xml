@@ -9,8 +9,8 @@
     <string name="settings_button_main">Setări</string>
     <string name="back_button">Înapoi</string>
     <string name="outlets_address_header">Puncte de vânzare</string>
-    <string name="tva_cod_client">TVA Cod:</string>
-    <string name="idnp_client">IDNP:</string>
+    <string name="tva_cod_client">C/F:</string>
+    <string name="idnp_client">IDNO:</string>
     <string name="cod_client">Cod:</string>
     <string name="all_orders">Toate comenzile</string>
     <string name="in_queue_orders">În rînd</string>
@@ -152,4 +152,11 @@
     <string name="send_diagnostic_item">Trimiteți o diagnostică</string>
     <string name="create_order_assortment_activity_header">Crearea comenzii</string>
     <string name="settings_name_activity">Setări</string>
+    <string name="balance_client_in_shop_cart">"Balanță: "</string>
+    <string name="order_histori_client_state">Această comandă este schiță.</string>
+    <string name="order_histori_client_state_queue">Această comandă este în rînd.</string>
+    <string name="order_histori_client_state_work">Această comandă este în lucru.</string>
+    <string name="order_histori_client_state_prepared">Această comandă este pregătită.</string>
+    <string name="verifica_reducere_shop_cart">Verifică reducere</string>
+    <string name="daily_report_activity">Comenzi pe zi</string>
 </resources>

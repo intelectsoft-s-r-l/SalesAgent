@@ -69,16 +69,21 @@
     <TextView
         android:id="@+id/textOrderDetailStateColor"
         android:layout_width="0dp"
-        android:layout_height="30dp"
+        android:layout_height="wrap_content"
         android:background="#E38B00"
         android:clickable="true"
         android:gravity="center"
+        android:paddingStart="8dp"
+        android:paddingLeft="8dp"
+        android:paddingEnd="8dp"
+        android:paddingRight="8dp"
         android:text="@string/order_is_in_process_can_edit_order_after_you_cancel_this_order"
         android:textColor="@color/white"
         android:textSize="16sp"
         android:textStyle="bold"
         android:visibility="visible"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHeight_min="30dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/layoutHeaderListOrderDetail" />
 

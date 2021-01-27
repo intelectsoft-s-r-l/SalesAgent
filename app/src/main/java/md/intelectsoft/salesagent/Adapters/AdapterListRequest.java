@@ -89,16 +89,16 @@ public class AdapterListRequest extends RealmBaseAdapter<Request> implements Lis
                 int currentState = item.getState();
                 switch (currentState) {
                     case 0:
-                        viewHolder.stateRequest.setText("Draft");
+                        viewHolder.stateRequest.setText(R.string.order_state_draft);
                         break;
                     case 1:
-                        viewHolder.stateRequest.setText("In queue");
+                        viewHolder.stateRequest.setText(R.string.order_state_in_queue);
                         break;
                     case 2:
-                        viewHolder.stateRequest.setText("In work");
+                        viewHolder.stateRequest.setText(R.string.order_state_in_work);
                         break;
                     case 3:
-                        viewHolder.stateRequest.setText("Prepared");
+                        viewHolder.stateRequest.setText(R.string.order_state_prepared);
                         break;
                     case 4:
                         viewHolder.stateRequest.setText("Anulat de beneficiar");
@@ -107,7 +107,7 @@ public class AdapterListRequest extends RealmBaseAdapter<Request> implements Lis
                         viewHolder.stateRequest.setText("Anulat de furnizor");
                         break;
                     case 6:
-                        viewHolder.stateRequest.setText("Final");
+                        viewHolder.stateRequest.setText(R.string.order_state_final);
                         break;
                     default:
                         viewHolder.stateRequest.setText("Unknown");

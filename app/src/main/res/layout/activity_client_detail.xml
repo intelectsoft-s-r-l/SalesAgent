@@ -306,9 +306,7 @@
             android:layout_height="wrap_content"
             android:clickable="true"
             android:focusable="true"
-            android:paddingStart="4dp"
-            android:paddingEnd="4dp"
-            android:paddingBottom="4dp"
+            android:padding="5dp"
             android:text="@string/show_all"
             android:textColor="@color/black"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -322,9 +320,7 @@
             android:layout_height="wrap_content"
             android:clickable="true"
             android:focusable="true"
-            android:paddingStart="4dp"
-            android:paddingEnd="4dp"
-            android:paddingBottom="4dp"
+            android:padding="5dp"
             android:text="@string/show_all"
             android:textColor="@color/black"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -338,9 +334,7 @@
             android:layout_height="wrap_content"
             android:clickable="true"
             android:focusable="true"
-            android:paddingStart="4dp"
-            android:paddingEnd="4dp"
-            android:paddingBottom="4dp"
+            android:padding="5dp"
             android:text="@string/show_all"
             android:textColor="@color/black"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -354,9 +348,7 @@
             android:layout_height="wrap_content"
             android:clickable="true"
             android:focusable="true"
-            android:paddingStart="4dp"
-            android:paddingEnd="4dp"
-            android:paddingBottom="4dp"
+            android:padding="5dp"
             android:text="@string/show_all"
             android:textColor="@color/black"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -378,14 +370,30 @@
             app:layout_constraintTop_toTopOf="parent" />
 
         <ImageView
-            android:id="@+id/imageView3"
+            android:id="@+id/imageClientDetail"
             android:layout_width="96dp"
             android:layout_height="96dp"
             android:layout_marginStart="16dp"
+            android:visibility="invisible"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:srcCompat="@drawable/image_agent_test" />
+
+        <TextView
+            android:id="@+id/textViewClientShortNameDetail"
+            android:layout_width="96dp"
+            android:layout_height="96dp"
+            android:layout_marginStart="16dp"
+            android:background="@drawable/background_yellow_username"
+            android:gravity="center"
+            android:text="SA"
+            android:textAllCaps="true"
+            android:textColor="@color/white"
+            android:textSize="36sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
             android:id="@+id/textClientFullName"
@@ -398,7 +406,7 @@
             android:textStyle="bold"
             app:layout_constraintBottom_toTopOf="@+id/textBalanceClient"
             app:layout_constraintEnd_toStartOf="@+id/divider"
-            app:layout_constraintStart_toEndOf="@+id/imageView3"
+            app:layout_constraintStart_toEndOf="@+id/imageClientDetail"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_chainStyle="packed" />
 
