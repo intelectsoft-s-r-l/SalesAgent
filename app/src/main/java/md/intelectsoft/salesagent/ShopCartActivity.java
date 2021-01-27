@@ -7,7 +7,11 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.Configuration;
+import android.content.res.Resources;
+import android.os.Build;
 import android.os.Bundle;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
@@ -26,6 +30,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -34,11 +39,12 @@ import io.realm.Realm;
 import io.realm.RealmList;
 import md.intelectsoft.salesagent.Adapters.AdapterLinesRequestShopCart;
 import md.intelectsoft.salesagent.AppUtils.BaseEnum;
+import md.intelectsoft.salesagent.AppUtils.LocaleHelper;
 import md.intelectsoft.salesagent.OrderServiceUtils.OrderRetrofitClient;
 import md.intelectsoft.salesagent.OrderServiceUtils.OrderServiceAPI;
 import md.intelectsoft.salesagent.OrderServiceUtils.RemoteException;
-import md.intelectsoft.salesagent.OrderServiceUtils.Results.ClientList;
 import md.intelectsoft.salesagent.OrderServiceUtils.Results.ClientPrices;
+import md.intelectsoft.salesagent.OrderServiceUtils.Results.ClientResponseInfo;
 import md.intelectsoft.salesagent.OrderServiceUtils.Results.DiscountPricesClient;
 import md.intelectsoft.salesagent.OrderServiceUtils.Results.SaveRequestResult;
 import md.intelectsoft.salesagent.OrderServiceUtils.body.ClientPricesBody;
@@ -300,6 +306,9 @@ public class ShopCartActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        String lang = LocaleHelper.getLanguage(this);
+
+        setAppLocale(lang);
         setContentView(R.layout.activity_shop_cart);
 
         ButterKnife.bind(this);
@@ -322,29 +331,42 @@ public class ShopCartActivity extends AppCompatActivity {
 
     }
 
-    private void loadInfoBalanceClient(String clientId) {
-        Call<ClientList> clientListCall = orderServiceAPI.getClientInfo(token, clientId);
+    private void setAppLocale(String localeCode){
+        Resources resources = getResources();
+        DisplayMetrics dm = resources.getDisplayMetrics();
+        Configuration config = resources.getConfiguration();
 
-        clientListCall.enqueue(new Callback<ClientList>() {
+        if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.JELLY_BEAN_MR1){
+            config.setLocale(new Locale(localeCode.toLowerCase()));
+        } else {
+            config.locale = new Locale(localeCode.toLowerCase());
+        }
+        resources.updateConfiguration(config, dm);
+    }
+
+    private void loadInfoBalanceClient(String clientId) {
+        Call<ClientResponseInfo> clientListCall = orderServiceAPI.getClientInfo(token, clientId);
+
+        clientListCall.enqueue(new Callback<ClientResponseInfo>() {
             @Override
-            public void onResponse(Call<ClientList> call, Response<ClientList> response) {
-                ClientList clientList = response.body();
+            public void onResponse(Call<ClientResponseInfo> call, Response<ClientResponseInfo> response) {
+                ClientResponseInfo clientList = response.body();
 
                 if(clientList != null){
                     if(clientList.getErrorCode() == 0){
-                        RealmList<Client> client = clientList.getClients();
+                        Client client = clientList.getClients();
 
-                        if(client != null && client.size() > 0){
-                            Client client1 = client.first();
+                        if(client != null){
+                            Client client1 = client;
 
-                            shopCartBalanceClient.setText("Balance: " + client1.getBalance() + " MDL");
+                            shopCartBalanceClient.setText(getString(R.string.balance_client_in_shop_cart) + client1.getBalance() + " MDL");
                         }
                     }
                 }
             }
 
             @Override
-            public void onFailure(Call<ClientList> call, Throwable t) {
+            public void onFailure(Call<ClientResponseInfo> call, Throwable t) {
 
             }
         });

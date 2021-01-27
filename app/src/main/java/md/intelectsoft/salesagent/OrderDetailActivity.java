@@ -7,11 +7,15 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Base64;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
@@ -26,6 +30,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -35,6 +40,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -43,6 +49,7 @@ import io.realm.Realm;
 import io.realm.RealmList;
 import md.intelectsoft.salesagent.Adapters.AdapterLinesRequestDetail;
 import md.intelectsoft.salesagent.AppUtils.BaseEnum;
+import md.intelectsoft.salesagent.AppUtils.LocaleHelper;
 import md.intelectsoft.salesagent.OrderServiceUtils.OrderRetrofitClient;
 import md.intelectsoft.salesagent.OrderServiceUtils.OrderServiceAPI;
 import md.intelectsoft.salesagent.OrderServiceUtils.Results.GetPrintRequest;
@@ -215,6 +222,9 @@ public class OrderDetailActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        String lang = LocaleHelper.getLanguage(this);
+
+        setAppLocale(lang);
         setContentView(R.layout.activity_order_detail);
         ButterKnife.bind(this);
         ButterKnife.setDebug(true);
@@ -299,6 +309,7 @@ public class OrderDetailActivity extends AppCompatActivity {
                 orderTextStateColor.setVisibility(View.VISIBLE);
                 orderTextStateColor.setText(getString(R.string.order_is_in_process_can_edit_order_after_you_cancel_this_order));
                 orderTextStateColor.setBackgroundColor(getColor(R.color.orange));
+                orderTextStateColor.setCompoundDrawablesRelativeWithIntrinsicBounds(null,null, ContextCompat.getDrawable(context,R.drawable.ic_cancel_order_black_24dp), null);
                 orderTextStateColor.setOnClickListener(v -> {
                     progressDialog.setMessage(getString(R.string.dialog_msg_title_cancel_order));
                     progressDialog.setIndeterminate(true);
@@ -411,6 +422,19 @@ public class OrderDetailActivity extends AppCompatActivity {
             linesRequestDetail.setBlocked(isBlocked);
             linesList.setAdapter(linesRequestDetail);
         }
+    }
+
+    private void setAppLocale(String localeCode){
+        Resources resources = getResources();
+        DisplayMetrics dm = resources.getDisplayMetrics();
+        Configuration config = resources.getConfiguration();
+
+        if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.JELLY_BEAN_MR1){
+            config.setLocale(new Locale(localeCode.toLowerCase()));
+        } else {
+            config.locale = new Locale(localeCode.toLowerCase());
+        }
+        resources.updateConfiguration(config, dm);
     }
 
     @Override

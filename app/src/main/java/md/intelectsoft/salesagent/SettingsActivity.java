@@ -2,9 +2,13 @@ package md.intelectsoft.salesagent;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.res.Configuration;
+import android.content.res.Resources;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.SpannableString;
 import android.text.style.ForegroundColorSpan;
+import android.util.DisplayMetrics;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -17,9 +21,12 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
+import java.util.Locale;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import md.intelectsoft.salesagent.AppUtils.LocaleHelper;
 import md.intelectsoft.salesagent.fragments.FragmentInformation;
 import md.intelectsoft.salesagent.fragments.FragmentLanguage;
 import md.intelectsoft.salesagent.fragments.FragmentSync;
@@ -60,6 +67,9 @@ public class SettingsActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        String lang = LocaleHelper.getLanguage(this);
+
+        setAppLocale(lang);
         setContentView(R.layout.activity_settings);
         ButterKnife.bind(this);
         ButterKnife.setDebug(true);
@@ -84,6 +94,19 @@ public class SettingsActivity extends AppCompatActivity {
             startMsg.setVisibility(View.GONE);
             fgManager.beginTransaction().replace(R.id.container_setting,fragment).commit();
         }
+    }
+
+    private void setAppLocale(String localeCode){
+        Resources resources = getResources();
+        DisplayMetrics dm = resources.getDisplayMetrics();
+        Configuration config = resources.getConfiguration();
+
+        if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.JELLY_BEAN_MR1){
+            config.setLocale(new Locale(localeCode.toLowerCase()));
+        } else {
+            config.locale = new Locale(localeCode.toLowerCase());
+        }
+        resources.updateConfiguration(config, dm);
     }
 
     @Override

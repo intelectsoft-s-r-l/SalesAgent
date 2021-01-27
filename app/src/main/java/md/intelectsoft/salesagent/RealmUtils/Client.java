@@ -20,6 +20,9 @@ public class Client extends RealmObject {
     @SerializedName("IDNP")
     @Expose
     private String iDNP;
+    @SerializedName("Image")
+    @Expose
+    private byte[] image;
     @SerializedName("Name")
     @Expose
     private String name;
@@ -50,6 +53,14 @@ public class Client extends RealmObject {
 
     public void setIDNP(String iDNP) {
         this.iDNP = iDNP;
+    }
+
+    public byte[] getImage() {
+        return image;
+    }
+
+    public void setImage(byte[] image) {
+        this.image = image;
     }
 
     public String getName() {

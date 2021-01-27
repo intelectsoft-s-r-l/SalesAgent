@@ -7,8 +7,11 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.SpannableString;
 import android.text.style.ForegroundColorSpan;
@@ -40,6 +43,7 @@ import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.UUID;
@@ -55,6 +59,7 @@ import io.realm.RealmResults;
 import io.realm.Sort;
 import md.intelectsoft.salesagent.Adapters.AdapterProductsList;
 import md.intelectsoft.salesagent.AppUtils.BaseEnum;
+import md.intelectsoft.salesagent.AppUtils.LocaleHelper;
 import md.intelectsoft.salesagent.OrderServiceUtils.OrderRetrofitClient;
 import md.intelectsoft.salesagent.OrderServiceUtils.OrderServiceAPI;
 import md.intelectsoft.salesagent.OrderServiceUtils.Results.PriceList;
@@ -95,9 +100,12 @@ public class AssortmentOrderActivity extends AppCompatActivity {
     Request requestOrder;
     static Realm mRealm;
 
-    @OnClick(R.id.textBackMainFromAssortmentOrder) void onBckClick() {
+    @OnClick(R.id.textBackMainFromAssortmentOrderCreate) void onBckClick() {
         int childCount = layoutDOM.getChildCount();
         if(childCount == 1){
+            String lang = LocaleHelper.getLanguage(this);
+
+            setAppLocale(lang);
             new MaterialAlertDialogBuilder(this)
                     .setTitle(getString(R.string.dialog_msg_warning))
                     .setMessage(getString(R.string.dialog_msg_log_out_user))
@@ -296,6 +304,9 @@ public class AssortmentOrderActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        String lang = LocaleHelper.getLanguage(this);
+
+        setAppLocale(lang);
         setContentView(R.layout.activity_assortment_order);
         ButterKnife.bind(this);
         ButterKnife.setDebug(true);
@@ -445,6 +456,19 @@ public class AssortmentOrderActivity extends AppCompatActivity {
         showProducts(assortmentEntry.getUid());
     };
 
+    private void setAppLocale(String localeCode){
+        Resources resources = getResources();
+        DisplayMetrics dm = resources.getDisplayMetrics();
+        Configuration config = resources.getConfiguration();
+
+        if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.JELLY_BEAN_MR1){
+            config.setLocale(new Locale(localeCode.toLowerCase()));
+        } else {
+            config.locale = new Locale(localeCode.toLowerCase());
+        }
+        resources.updateConfiguration(config, dm);
+    }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -454,6 +478,14 @@ public class AssortmentOrderActivity extends AppCompatActivity {
                 finish();
             }
         }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        String lang = LocaleHelper.getLanguage(this);
+
+        setAppLocale(lang);
     }
 
     public static void addProductToCart(Assortment product, double count){
@@ -587,6 +619,9 @@ public class AssortmentOrderActivity extends AppCompatActivity {
 
         Dialog productInfoDialog = new Dialog(context,R.style.CustomDialog);
         productInfoDialog.setContentView(dialogView);
+        String lang = LocaleHelper.getLanguage(this);
+
+        setAppLocale(lang);
 
         TextView productName = dialogView.findViewById(R.id.textDialogInfoProductName);
         TextView productDiscount = dialogView.findViewById(R.id.textDialogInfoProductDiscount);

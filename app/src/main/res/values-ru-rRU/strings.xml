@@ -151,4 +151,11 @@
     <string name="send_diagnostic_item">Отправить диагностику</string>
     <string name="create_order_assortment_activity_header">Создание заказа</string>
     <string name="settings_name_activity">Настройки</string>
+    <string name="balance_client_in_shop_cart">"Баланс: "</string>
+    <string name="order_histori_client_state">Этот заказ черновик..</string>
+    <string name="order_histori_client_state_queue">Этот заказ в очереди.</string>
+    <string name="order_histori_client_state_work">Этот заказ в работе.</string>
+    <string name="order_histori_client_state_prepared">Этот заказ приготовлен.</string>
+    <string name="verifica_reducere_shop_cart">Проверить скидку</string>
+    <string name="daily_report_activity">Заказы за день</string>
 </resources>

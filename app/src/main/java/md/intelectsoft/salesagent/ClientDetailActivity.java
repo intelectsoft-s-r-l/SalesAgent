@@ -6,10 +6,16 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.Configuration;
+import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.SpannableString;
 import android.text.style.ForegroundColorSpan;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.ImageView;
@@ -21,6 +27,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.util.Locale;
 import java.util.UUID;
 
 import butterknife.BindView;
@@ -31,10 +38,11 @@ import io.realm.RealmList;
 import md.intelectsoft.salesagent.Adapters.AdapterClientHistoryOrder;
 import md.intelectsoft.salesagent.Adapters.AdapterOutletListGrid;
 import md.intelectsoft.salesagent.AppUtils.BaseEnum;
+import md.intelectsoft.salesagent.AppUtils.LocaleHelper;
 import md.intelectsoft.salesagent.AppUtils.VerticalSpaceItemDecoration;
 import md.intelectsoft.salesagent.OrderServiceUtils.OrderRetrofitClient;
 import md.intelectsoft.salesagent.OrderServiceUtils.OrderServiceAPI;
-import md.intelectsoft.salesagent.OrderServiceUtils.Results.ClientList;
+import md.intelectsoft.salesagent.OrderServiceUtils.Results.ClientResponseInfo;
 import md.intelectsoft.salesagent.OrderServiceUtils.Results.RequestList;
 import md.intelectsoft.salesagent.RealmUtils.Client;
 import md.intelectsoft.salesagent.RealmUtils.Outlets;
@@ -72,6 +80,9 @@ public class ClientDetailActivity extends AppCompatActivity {
 
     @BindView(R.id.historyRecyclerView) RecyclerView historyRecyclerView;
     @BindView(R.id.listClientOutlets) ListView outletListView;
+
+    @BindView(R.id.textViewClientShortNameDetail) TextView textClientDetailShortName;
+    @BindView(R.id.imageClientDetail) ImageView clientDetailImage;
 
     SharedPreferences sharedPreferencesSettings;
     OrderServiceAPI orderServiceAPI;
@@ -163,6 +174,9 @@ public class ClientDetailActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        String lang = LocaleHelper.getLanguage(this);
+
+        setAppLocale(lang);
         setContentView(R.layout.activity_client_detail);
         ButterKnife.bind(this);
         ButterKnife.setDebug(true);
@@ -193,6 +207,25 @@ public class ClientDetailActivity extends AppCompatActivity {
         if(client != null) {
             clientName = client.getName();
             textClientName.setText(client.getName());
+
+            if(client.getImage() != null) {
+                if(client.getImage().length > 0){
+                    textClientDetailShortName.setVisibility(View.GONE);
+                    clientDetailImage.setVisibility(View.VISIBLE);
+                    Bitmap bmpImage = BitmapFactory.decodeByteArray(client.getImage(), 0, client.getImage().length);
+                    clientDetailImage.setImageBitmap(Bitmap.createScaledBitmap(bmpImage, 211, 211, false));
+                }
+                else{
+                    textClientDetailShortName.setVisibility(View.VISIBLE);
+                    clientDetailImage.setVisibility(View.INVISIBLE);
+                    textClientDetailShortName.setText(client.getName().substring(0,2));
+                }
+            }
+            else{
+                textClientDetailShortName.setVisibility(View.VISIBLE);
+                clientDetailImage.setVisibility(View.INVISIBLE);
+                textClientDetailShortName.setText(client.getName().substring(0,2));
+            }
         }
 
 
@@ -220,8 +253,21 @@ public class ClientDetailActivity extends AppCompatActivity {
         startActivityForResult(requestActivity,1);
     };
 
+    private void setAppLocale(String localeCode){
+        Resources resources = getResources();
+        DisplayMetrics dm = resources.getDisplayMetrics();
+        Configuration config = resources.getConfiguration();
+
+        if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.JELLY_BEAN_MR1){
+            config.setLocale(new Locale(localeCode.toLowerCase()));
+        } else {
+            config.locale = new Locale(localeCode.toLowerCase());
+        }
+        resources.updateConfiguration(config, dm);
+    }
+
     private void getInformationAboutClient() {
-        Call<ClientList> clientListCall = orderServiceAPI.getClientInfo(token, clientUid);
+        Call<ClientResponseInfo> clientListCall = orderServiceAPI.getClientInfo(token, clientUid);
 
         progressDialog.setMessage(getString(R.string.dialog_msg_get_client_info));
         progressDialog.setCancelable(false);
@@ -235,17 +281,17 @@ public class ClientDetailActivity extends AppCompatActivity {
         });
         progressDialog.show();
 
-        clientListCall.enqueue(new Callback<ClientList>() {
+        clientListCall.enqueue(new Callback<ClientResponseInfo>() {
             @Override
-            public void onResponse(Call<ClientList> call, Response<ClientList> response) {
-                ClientList clientList = response.body();
+            public void onResponse(Call<ClientResponseInfo> call, Response<ClientResponseInfo> response) {
+                ClientResponseInfo clientList = response.body();
 
                 if(clientList != null){
                     if(clientList.getErrorCode() == 0){
-                        RealmList<Client> client1 = clientList.getClients();
+                        Client client1 = clientList.getClients();
 
-                        if(client1 != null && client1.size() > 0){
-                            client = client1.first();
+                        if(client1 != null ){
+                            client = client1;
 
                             textClientBalance.setText(getString(R.string.balance_client_text) + client.getBalance() + " MDL");
                             RealmList<Outlets> outlets = client.getOutlets();
@@ -264,6 +310,29 @@ public class ClientDetailActivity extends AppCompatActivity {
                                 imageEmptyOutlets.setVisibility(View.VISIBLE);
                                 textEmptyOutlets.setVisibility(View.VISIBLE);
                             }
+                            if(client.getImage() != null) {
+                                if(client.getImage().length > 0){
+                                    textClientDetailShortName.setVisibility(View.GONE);
+                                    clientDetailImage.setVisibility(View.VISIBLE);
+                                    Bitmap bmpImage = BitmapFactory.decodeByteArray(client.getImage(), 0, client.getImage().length);
+                                    clientDetailImage.setImageBitmap(Bitmap.createScaledBitmap(bmpImage, 211, 211, false));
+
+                                    mRealm.executeTransaction(realm -> {
+                                        client.setImage(client1.getImage());
+                                    });
+                                }
+                                else{
+                                    textClientDetailShortName.setVisibility(View.VISIBLE);
+                                    clientDetailImage.setVisibility(View.INVISIBLE);
+                                    textClientDetailShortName.setText(client.getName().substring(0,2));
+                                }
+                            }
+                            else{
+                                textClientDetailShortName.setVisibility(View.VISIBLE);
+                                clientDetailImage.setVisibility(View.INVISIBLE);
+                                textClientDetailShortName.setText(client.getName().substring(0,2));
+                            }
+
                             codeClient.setText(client.getCode());
                             idnpClient.setText(client.getIDNP());
                             tvaClient.setText(client.getTVACode());
@@ -288,9 +357,10 @@ public class ClientDetailActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onFailure(Call<ClientList> call, Throwable t) {
+            public void onFailure(Call<ClientResponseInfo> call, Throwable t) {
                 progressDialog.dismiss();
                 Toast.makeText(context, "Failure load client: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                Log.e("TAG", "onFailure: " + call.request() );
             }
         });
 

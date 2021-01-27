@@ -9,8 +9,8 @@
     <string name="settings_button_main">Setari</string>
     <string name="back_button">Back</string>
     <string name="outlets_address_header">Outlets address</string>
-    <string name="tva_cod_client">TVA Cod:</string>
-    <string name="idnp_client">IDNP:</string>
+    <string name="tva_cod_client">Fiscal Code:</string>
+    <string name="idnp_client">IDNO:</string>
     <string name="cod_client">Cod:</string>
     <string name="all_orders">All orders</string>
     <string name="in_queue_orders">In queue orders</string>
@@ -152,4 +152,11 @@
     <string name="send_diagnostic_item">Send diagnostic</string>
     <string name="create_order_assortment_activity_header">Create order</string>
     <string name="settings_name_activity">Settings</string>
+    <string name="balance_client_in_shop_cart">"Balance: "</string>
+    <string name="order_histori_client_state">This order is draft.</string>
+    <string name="order_histori_client_state_queue">This order is queue.</string>
+    <string name="order_histori_client_state_work">This order is in work.</string>
+    <string name="order_histori_client_state_prepared">This order is prepared.</string>
+    <string name="verifica_reducere_shop_cart">Check discount</string>
+    <string name="daily_report_activity">Daily report</string>
 </resources>

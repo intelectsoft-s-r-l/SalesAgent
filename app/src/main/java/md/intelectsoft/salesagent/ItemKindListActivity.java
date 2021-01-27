@@ -1,8 +1,12 @@
 package md.intelectsoft.salesagent;
 
+import android.content.res.Configuration;
+import android.content.res.Resources;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.SpannableString;
 import android.text.style.ForegroundColorSpan;
+import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,12 +22,14 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
 
 import io.realm.OrderedRealmCollection;
 import io.realm.Realm;
 import io.realm.RealmBaseAdapter;
 import io.realm.RealmResults;
 import io.realm.Sort;
+import md.intelectsoft.salesagent.AppUtils.LocaleHelper;
 import md.intelectsoft.salesagent.RealmUtils.Request;
 
 public class ItemKindListActivity extends AppCompatActivity {
@@ -42,6 +48,9 @@ public class ItemKindListActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        String lang = LocaleHelper.getLanguage(this);
+
+        setAppLocale(lang);
         setContentView(R.layout.activity_itemkind_list);
 
         mRealm = Realm.getDefaultInstance();
@@ -103,8 +112,21 @@ public class ItemKindListActivity extends AppCompatActivity {
         });
     }
 
+    private void setAppLocale(String localeCode){
+        Resources resources = getResources();
+        DisplayMetrics dm = resources.getDisplayMetrics();
+        Configuration config = resources.getConfiguration();
+
+        if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.JELLY_BEAN_MR1){
+            config.setLocale(new Locale(localeCode.toLowerCase()));
+        } else {
+            config.locale = new Locale(localeCode.toLowerCase());
+        }
+        resources.updateConfiguration(config, dm);
+    }
+
     private void setNameTextColor(){
-        SpannableString s = new SpannableString("Sales Agent - Daily report");
+        SpannableString s = new SpannableString("Sales Agent - " + getString(R.string.daily_report_activity));
         s.setSpan(new ForegroundColorSpan(getColor(R.color.orange)), 0, 1, 0);
         s.setSpan(new ForegroundColorSpan(getColor(R.color.black)), 1, s.length(), 0);
 
@@ -175,16 +197,16 @@ public class ItemKindListActivity extends AppCompatActivity {
                     int currentState = item.getState();
                     switch (currentState) {
                         case 0:
-                            viewHolder.stateRequest.setText("Draft");
+                            viewHolder.stateRequest.setText(R.string.order_state_draft);
                             break;
                         case 1:
-                            viewHolder.stateRequest.setText("In queue");
+                            viewHolder.stateRequest.setText(R.string.order_state_in_queue);
                             break;
                         case 2:
-                            viewHolder.stateRequest.setText("In work");
+                            viewHolder.stateRequest.setText(R.string.order_state_in_work);
                             break;
                         case 3:
-                            viewHolder.stateRequest.setText("Prepared");
+                            viewHolder.stateRequest.setText(R.string.order_state_prepared);
                             break;
                         case 4:
                             viewHolder.stateRequest.setText("Anulat de beneficiar");
@@ -193,7 +215,7 @@ public class ItemKindListActivity extends AppCompatActivity {
                             viewHolder.stateRequest.setText("Anulat de furnizor");
                             break;
                         case 6:
-                            viewHolder.stateRequest.setText("Final");
+                            viewHolder.stateRequest.setText(R.string.order_state_final);
                             break;
                         default:
                             viewHolder.stateRequest.setText("Unknown");

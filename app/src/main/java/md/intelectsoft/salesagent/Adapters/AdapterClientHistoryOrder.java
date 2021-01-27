@@ -49,16 +49,16 @@ public class AdapterClientHistoryOrder extends RecyclerView.Adapter<AdapterClien
             int currentState = request.getState();
             switch (currentState) {
                 case 0:
-                    holder.state.setText("Draft");
+                    holder.state.setText(R.string.order_state_draft);
                     break;
                 case 1:
-                    holder.state.setText("In queue");
+                    holder.state.setText(R.string.order_state_in_queue);
                     break;
                 case 2:
-                    holder.state.setText("In work");
+                    holder.state.setText(R.string.order_state_in_work);
                     break;
                 case 3:
-                    holder.state.setText("Prepared");
+                    holder.state.setText(R.string.order_state_prepared);
                     break;
                 case 4:
                     holder.state.setText("Anulat de beneficiar");
@@ -67,7 +67,7 @@ public class AdapterClientHistoryOrder extends RecyclerView.Adapter<AdapterClien
                     holder.state.setText("Anulat de furnizor");
                     break;
                 case 6:
-                    holder.state.setText("Final");
+                    holder.state.setText(R.string.order_state_final);
                     break;
                 default:
                     holder.state.setText("Unknown");

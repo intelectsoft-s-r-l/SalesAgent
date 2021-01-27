@@ -190,7 +190,6 @@
                 android:ems="10"
                 android:inputType="textPassword"
                 android:paddingStart="16dp"
-                android:text="Admin202827"
                 android:textColor="@color/black"
                 android:textSize="16dp" />
         </com.google.android.material.textfield.TextInputLayout>
