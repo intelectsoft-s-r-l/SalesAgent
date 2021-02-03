@@ -230,9 +230,10 @@ public class OrdersClientListActivity extends AppCompatActivity {
                                 request.setInternId(internUUID);
                                 String dateDocument = request.getDateValid();
                                 if (dateDocument != null) {
-                                    dateDocument = dateDocument.replace("/Date(", "");
-                                    dateDocument = dateDocument.replace("+0300)/", "");
-                                    dateDocument = dateDocument.replace("+0200)/", "");
+                                    if (dateDocument != null)
+                                        dateDocument = dateDocument.replace("/Date(", "");
+                                    if (dateDocument != null)
+                                        dateDocument = dateDocument.substring(0, dateDocument.length() - 7);
                                 }
                                 long date = Long.parseLong(dateDocument);
                                 request.setDateToLong(date);

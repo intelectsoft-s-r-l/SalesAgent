@@ -18,6 +18,18 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
+        <ImageView
+            android:id="@+id/imageChangeGridColumns3"
+            android:layout_width="45dp"
+            android:layout_height="45dp"
+            android:layout_marginEnd="8dp"
+            android:padding="4dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/imageShopCartAssortment"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.458"
+            app:srcCompat="@drawable/ic_grid_black_24dp" />
+
         <SearchView
             android:id="@+id/searchAssortment"
             android:layout_width="wrap_content"
@@ -28,7 +40,9 @@
             android:iconifiedByDefault="true"
             android:searchIcon="@drawable/ic_search_icon"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/imageShopCartAssortment"
+            app:layout_constraintEnd_toStartOf="@+id/imageChangeGridColumns3"
+            app:layout_constraintHorizontal_bias="1.0"
+            app:layout_constraintStart_toEndOf="@+id/productsListAppNameAssortmentOrder"
             app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
@@ -70,16 +84,16 @@
             android:layout_marginEnd="8dp"
             android:layout_marginBottom="8dp"
             android:scaleType="center"
-            app:ibv_badgeTextSize="12sp"
-            app:ibv_fixedBadgeRadius="10dp"
-            app:ibv_badgeTextStyle="bold"
-            app:ibv_badgeTextColor="#ffffff"
+            android:src="@drawable/ic_add_to_cart_product"
             app:ibv_badgeColor="@color/orange"
             app:ibv_badgeLimitValue="false"
+            app:ibv_badgeTextColor="#ffffff"
+            app:ibv_badgeTextSize="12sp"
+            app:ibv_badgeTextStyle="bold"
+            app:ibv_fixedBadgeRadius="10dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            android:src="@drawable/ic_add_to_cart_product" />
+            app:layout_constraintTop_toTopOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -101,7 +115,7 @@
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/scrollViewDomProducts"
-        tools:listitem="@layout/item_list_products_list">
+        tools:listitem="@layout/item_grid_products_list">
 
     </GridView>
 

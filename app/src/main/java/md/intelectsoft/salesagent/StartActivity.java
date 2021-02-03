@@ -196,7 +196,6 @@ public class StartActivity extends AppCompatActivity {
         window.setStatusBarColor(ContextCompat.getColor(this, android.R.color.transparent));
 
         String lang = LocaleHelper.getLanguage(this);
-
         setAppLocale(lang);
 
         AskForPermissions();
@@ -500,9 +499,10 @@ public class StartActivity extends AppCompatActivity {
                         if(appDataRegisterApplication.getURI() != null && !appDataRegisterApplication.getURI().equals("") && appDataRegisterApplication.getURI().length() > 5){
                             long nowDate = new Date().getTime();
                             String serverStringDate = appDataRegisterApplication.getServerDateTime();
-                            serverStringDate = serverStringDate.replace("/Date(","");
-                            serverStringDate = serverStringDate.replace("+0200)/","");
-                            serverStringDate = serverStringDate.replace("+0300)/","");
+                            if (serverStringDate != null)
+                                serverStringDate = serverStringDate.replace("/Date(", "");
+                            if (serverStringDate != null)
+                                serverStringDate = serverStringDate.substring(0, serverStringDate.length() - 7);
 
                             long serverDate = Long.parseLong(serverStringDate);
 
@@ -742,11 +742,7 @@ public class StartActivity extends AppCompatActivity {
                             if (dateValid != null)
                                 dateValid = dateValid.replace("/Date(", "");
                             if (dateValid != null)
-                                dateValid = dateValid.replace("+0200)/", "");
-                            if (dateValid != null)
-                                dateValid = dateValid.replace("+0300)/", "");
-                            if (dateValid != null)
-                                dateValid = dateValid.replace(")/", "");
+                                dateValid = dateValid.substring(0, dateValid.length() - 7);
 
                             long timeValid = Long.parseLong(dateValid);
 
