@@ -16,11 +16,11 @@ import android.os.Bundle;
 import android.text.SpannableString;
 import android.text.style.ForegroundColorSpan;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.webkit.WebView;
 import android.widget.Button;
@@ -34,6 +34,8 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import java.io.ByteArrayOutputStream;
 import java.util.Locale;
@@ -69,17 +71,14 @@ import static md.intelectsoft.salesagent.OrderDetailActivity.addChanges;
 
 @SuppressLint("NonConstantResourceId")
 public class AddProductsFromOrder extends AppCompatActivity {
-    @BindView(R.id.productsListAppNameAssortmentOrder)
-    TextView headerActivityName;
-    @BindView(R.id.gridAssortmentOrder)
-    GridView gridView;
-    @BindView(R.id.layoutDOMAssortment)
-    LinearLayout layoutDOM;
-    @BindView(R.id.imageGoHomeListAssortment)
-    ImageView goHomeList;
-    @BindView(R.id.searchAssortment)
-    SearchView searchProducts;
+    @BindView(R.id.productsListAppNameAssortmentOrder) TextView headerActivityName;
+    @BindView(R.id.gridAssortmentOrder) GridView gridView;
+    @BindView(R.id.layoutDOMAssortment)LinearLayout layoutDOM;
+    @BindView(R.id.imageGoHomeListAssortment) ImageView goHomeList;
+    @BindView(R.id.searchAssortment) SearchView searchProducts;
     static ImageBadgeView orderAddedProducts;
+
+    @BindView(R.id.imageChangeGridColumns2) ImageView changeColumns;
 
     AdapterProductsListToOrder adapterProductsList;
     SharedPreferences sharedPreferencesSettings;
@@ -93,46 +92,74 @@ public class AddProductsFromOrder extends AppCompatActivity {
     Context context;
     static Realm mRealm;
 
+    static boolean isViewWithCatalog;
+    int currentColumns;
+    String searchedText = null;
+
     @OnClick(R.id.textBackMainFromAssortmentOrder) void onBckClick() {
         int childCount = layoutDOM.getChildCount();
         if(childCount == 1){
-            View dialogView = getLayoutInflater().inflate(R.layout.dialog_exit_from_assortment, null);
 
-            Dialog orderDialog = new Dialog(context,R.style.CustomDialog);
-            orderDialog.setContentView(dialogView);
+            new MaterialAlertDialogBuilder(this)
+                    .setTitle(getString(R.string.dialog_msg_warning))
+                    .setMessage(getString(R.string.dialog_msg_log_out_user))
+                    .setPositiveButton(getString(R.string.save_local_and_exit_dialog_exit), (dialogInterface, i) -> {
+                        setResult(7777);
+                        dialogInterface.dismiss();
+                        finish();
+                    })
+                    .setNegativeButton(getString(R.string.exit_button),(dialog, which) -> {
+                        Request req = mRealm.where(Request.class).equalTo("internId",requestId).findFirst();
+                        assert req != null;
+                        RealmList<RequestLine> requestLines = req.getLines();
+                        mRealm.beginTransaction();
+                        if(requestLines != null && requestLines.size() > 0)
+                            requestLines.deleteAllFromRealm();
 
-            Button saveExit = dialogView.findViewById(R.id.saveAndExitFromNewOrder);
-            Button exit = dialogView.findViewById(R.id.closeDialogExit);
-            Button sendExit = dialogView.findViewById(R.id.saveAndSendExitFromNewOrder);
+                        req.deleteFromRealm();
+                        mRealm.commitTransaction();
 
-            saveExit.setOnClickListener(v -> {
-                setResult(7777);
-                orderDialog.dismiss();
-                finish();
-            });
-
-            exit.setOnClickListener(v -> {
-                Request req = mRealm.where(Request.class).equalTo("internId",requestId).findFirst();
-                assert req != null;
-                RealmList<RequestLine> requestLines = req.getLines();
-                mRealm.beginTransaction();
-                if(requestLines != null && requestLines.size() > 0)
-                    requestLines.deleteAllFromRealm();
-
-                req.deleteFromRealm();
-                mRealm.commitTransaction();
-
-                orderDialog.dismiss();
-                finish();
-            });
-
-            orderDialog.show();
-
-            WindowManager.LayoutParams layoutParams = new WindowManager.LayoutParams();
-            layoutParams.copyFrom(orderDialog.getWindow().getAttributes());
-            layoutParams.width = 750;
-            layoutParams.height = 200;  //LinearLayout.LayoutParams.WRAP_CONTENT
-            orderDialog.getWindow().setAttributes(layoutParams);
+                        dialog.dismiss();
+                        finish();
+                    })
+                    .show();
+//            View dialogView = getLayoutInflater().inflate(R.layout.dialog_exit_from_assortment, null);
+//
+//            Dialog orderDialog = new Dialog(context,R.style.CustomDialog);
+//            orderDialog.setContentView(dialogView);
+//
+//            Button saveExit = dialogView.findViewById(R.id.saveAndExitFromNewOrder);
+//            Button exit = dialogView.findViewById(R.id.closeDialogExit);
+//            Button sendExit = dialogView.findViewById(R.id.saveAndSendExitFromNewOrder);
+//
+//            saveExit.setOnClickListener(v -> {
+//                setResult(7777);
+//                orderDialog.dismiss();
+//                finish();
+//            });
+//
+//            exit.setOnClickListener(v -> {
+//                Request req = mRealm.where(Request.class).equalTo("internId",requestId).findFirst();
+//                assert req != null;
+//                RealmList<RequestLine> requestLines = req.getLines();
+//                mRealm.beginTransaction();
+//                if(requestLines != null && requestLines.size() > 0)
+//                    requestLines.deleteAllFromRealm();
+//
+//                req.deleteFromRealm();
+//                mRealm.commitTransaction();
+//
+//                orderDialog.dismiss();
+//                finish();
+//            });
+//
+//            orderDialog.show();
+//
+//            WindowManager.LayoutParams layoutParams = new WindowManager.LayoutParams();
+//            layoutParams.copyFrom(orderDialog.getWindow().getAttributes());
+//            layoutParams.width = 750;
+//            layoutParams.height = 200;  //LinearLayout.LayoutParams.WRAP_CONTENT
+//            orderDialog.getWindow().setAttributes(layoutParams);
         }
         else {
             layoutDOM.removeViewAt(childCount - 1);
@@ -144,6 +171,22 @@ public class AddProductsFromOrder extends AppCompatActivity {
             else
                 showProducts("00000000-0000-0000-0000-000000000000");
         }
+    }
+
+    @OnClick(R.id.imageChangeGridColumns2) void onChangeColumns() {
+        currentColumns = gridView.getNumColumns();
+        if(currentColumns > 1) {
+            sharedPreferencesSettings.edit().putBoolean("ViewWithCatalog", false).apply();
+            changeColumns.setImageDrawable(getResources().getDrawable(R.drawable.ic_list_black_24dp));
+            isViewWithCatalog = false;
+            gridView.setNumColumns(1);
+        }else {
+            sharedPreferencesSettings.edit().putBoolean("ViewWithCatalog", true).apply();
+            changeColumns.setImageDrawable(getResources().getDrawable(R.drawable.ic_grid_black_24dp));
+            isViewWithCatalog = true;
+            gridView.setNumColumns(6);
+        }
+        adapterProductsList.notifyDataSetChanged();
     }
 
     @Override
@@ -168,10 +211,58 @@ public class AddProductsFromOrder extends AppCompatActivity {
         displayMetrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
 
-        Intent fromOrder = getIntent();
-        requestId = fromOrder.getStringExtra("internId");
+        if(savedInstanceState != null){
+            String[] ids = savedInstanceState.getStringArray("ids");
+            String[] names = savedInstanceState.getStringArray("names");
 
-        showProducts("00000000-0000-0000-0000-000000000000");
+            if(ids != null && names != null && ids.length > 1) {
+                for (int i = 1; i < ids.length; i++){
+                    Assortment clicked = new Assortment();
+                    clicked.setUid(ids[i]);
+                    clicked.setName(names[i]);
+
+                    TextView folder = new TextView(context);
+                    folder.setText(" / " + names[i]);
+                    folder.setTag(clicked);
+                    folder.setTextSize(20);
+                    folder.setGravity(Gravity.CENTER);
+                    folder.setOnClickListener(buttons_);
+                    folder.setTextColor(getColor(R.color.gray_text));
+
+                    LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.MATCH_PARENT);
+;
+                    layoutDOM.addView(folder, lp);
+                }
+
+                showProducts(ids[ids.length - 1]);
+            }
+            else{
+                showProducts("00000000-0000-0000-0000-000000000000");
+            }
+
+            searchedText = savedInstanceState.getString("textSearched");
+            if(searchedText != null){
+                searchProducts.setQuery(searchedText, true);
+                if (timerSearch != null)
+                    timerSearch.cancel();
+                timerSearch = new Timer();
+
+                startTimerSearchText(searchedText);
+                timerSearch.schedule(timerTaskSearchText, 1200);
+            }
+
+            int badges = savedInstanceState.getInt("badges");
+            orderAddedProducts.setBadgeValue(badges);
+
+            requestId = savedInstanceState.getString("requestId");
+
+        }
+        else{
+            Intent fromOrder = getIntent();
+            requestId = fromOrder.getStringExtra("internId");
+            showProducts("00000000-0000-0000-0000-000000000000");
+        }
+
 
         goHomeList.setOnClickListener(v -> {
             ViewGroup parent  = (ViewGroup) v.getParent();
@@ -182,6 +273,17 @@ public class AddProductsFromOrder extends AppCompatActivity {
             }
             showProducts("00000000-0000-0000-0000-000000000000");
         });
+
+        if(sharedPreferencesSettings.getBoolean("ViewWithCatalog", false)){
+            changeColumns.setImageDrawable(getResources().getDrawable(R.drawable.ic_grid_black_24dp));
+            isViewWithCatalog = true;
+            gridView.setNumColumns(6);
+        }
+        else{
+            changeColumns.setImageDrawable(getResources().getDrawable(R.drawable.ic_list_black_24dp));
+            isViewWithCatalog = false;
+            gridView.setNumColumns(1);
+        }
 
         gridView.setOnItemClickListener((parent, view, position, id) -> {
             Assortment clicked = adapterProductsList.getItem(position);
@@ -254,6 +356,7 @@ public class AddProductsFromOrder extends AppCompatActivity {
                     timerSearch.cancel();
                 timerSearch = new Timer();
 
+                searchedText = searchText;
                 startTimerSearchText(searchText);
                 timerSearch.schedule(timerTaskSearchText, 1200);
 
@@ -275,6 +378,39 @@ public class AddProductsFromOrder extends AppCompatActivity {
 
             finish();
         });
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle bundle) {
+        super.onSaveInstanceState(bundle);
+        int sizeTextViews = layoutDOM.getChildCount();
+
+        if(sizeTextViews > 1){
+            String[] ids = new String[sizeTextViews];
+            String[] names= new String[sizeTextViews];
+
+            ids[0] = "00000000-0000-0000-0000-000000000000";
+            names[0] = "";
+
+            for(int i = 1; i < sizeTextViews; i++){
+                View item = layoutDOM.getChildAt(i);
+                Assortment assortmentEntry = (Assortment)item.getTag();
+                ids[i] = assortmentEntry.getUid();
+                names[i] = assortmentEntry.getName();
+
+                Log.e("TAG", "onSaveInstanceState: " + assortmentEntry.getUid() + assortmentEntry.getName() );
+            }
+            bundle.putStringArray("ids", ids);
+            bundle.putStringArray("names", names);
+        }
+
+        bundle.putString("textSearched", searchedText);
+        bundle.putString("requestId",requestId);
+        bundle.putInt("badges",orderAddedProducts.getBadgeValue());
+    }
+
+    public static boolean isIsViewWithCatalog() {
+        return isViewWithCatalog;
     }
 
     private void setAppLocale(String localeCode){
@@ -492,15 +628,15 @@ public class AddProductsFromOrder extends AppCompatActivity {
 
         productInfoDialog.show();
 
-        int displayWidth = displayMetrics.widthPixels;
-        int displayHeight = displayMetrics.heightPixels;
-        WindowManager.LayoutParams layoutParams = new WindowManager.LayoutParams();
-        layoutParams.copyFrom(productInfoDialog.getWindow().getAttributes());
-        int dialogWindowWidth = (int) (displayWidth * 0.45f);
-        int dialogWindowHeight = (int) (displayHeight * 0.8f);
-        layoutParams.width = dialogWindowWidth;
-        layoutParams.height = dialogWindowHeight;  //LinearLayout.LayoutParams.WRAP_CONTENT
-        productInfoDialog.getWindow().setAttributes(layoutParams);
+//        int displayWidth = displayMetrics.widthPixels;
+//        int displayHeight = displayMetrics.heightPixels;
+//        WindowManager.LayoutParams layoutParams = new WindowManager.LayoutParams();
+//        layoutParams.copyFrom(productInfoDialog.getWindow().getAttributes());
+//        int dialogWindowWidth = (int) (displayWidth * 0.45f);
+//        int dialogWindowHeight = (int) (displayHeight * 0.8f);
+//        layoutParams.width = dialogWindowWidth;
+//        layoutParams.height = dialogWindowHeight;  //LinearLayout.LayoutParams.WRAP_CONTENT
+//        productInfoDialog.getWindow().setAttributes(layoutParams);
     }
 
     private void searchText(String newText) {

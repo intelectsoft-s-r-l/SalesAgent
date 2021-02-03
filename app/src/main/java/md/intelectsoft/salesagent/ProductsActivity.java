@@ -15,10 +15,10 @@ import android.os.Bundle;
 import android.text.SpannableString;
 import android.text.style.ForegroundColorSpan;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.webkit.WebView;
 import android.widget.Button;
 import android.widget.GridView;
@@ -62,6 +62,7 @@ public class ProductsActivity extends AppCompatActivity {
     @BindView(R.id.layoutDOM) LinearLayout layoutDOM;
     @BindView(R.id.imageGoHomeList) ImageView goHomeList;
     @BindView(R.id.searchProducts) SearchView searchProducts;
+    @BindView(R.id.imageChangeGridColumns) ImageView changeColumns;
 
     AdapterProductsList adapterProductsList;
     SharedPreferences sharedPreferencesSettings;
@@ -73,6 +74,10 @@ public class ProductsActivity extends AppCompatActivity {
     Timer timerSearch;
     Context context;
     Realm mRealm;
+
+    static boolean isViewWithCatalog;
+    int currentColumns;
+    String searchedText = null;
 
     @OnClick(R.id.textBackMainFromProducts) void onBckClick() {
         int childCount = layoutDOM.getChildCount();
@@ -90,6 +95,22 @@ public class ProductsActivity extends AppCompatActivity {
                 showProducts("00000000-0000-0000-0000-000000000000");
 
         }
+    }
+
+    @OnClick(R.id.imageChangeGridColumns) void onChangeColumns() {
+        currentColumns = gridView.getNumColumns();
+        if(currentColumns > 1) {
+            sharedPreferencesSettings.edit().putBoolean("ViewWithCatalog", false).apply();
+            changeColumns.setImageDrawable(getResources().getDrawable(R.drawable.ic_list_black_24dp));
+            isViewWithCatalog = false;
+            gridView.setNumColumns(1);
+        }else {
+            sharedPreferencesSettings.edit().putBoolean("ViewWithCatalog", true).apply();
+            changeColumns.setImageDrawable(getResources().getDrawable(R.drawable.ic_grid_black_24dp));
+            isViewWithCatalog = true;
+            gridView.setNumColumns(6);
+        }
+        adapterProductsList.notifyDataSetChanged();
     }
 
     @Override
@@ -114,7 +135,49 @@ public class ProductsActivity extends AppCompatActivity {
         displayMetrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
 
-        showProducts("00000000-0000-0000-0000-000000000000");
+        if(savedInstanceState != null){
+            String[] ids = savedInstanceState.getStringArray("ids");
+            String[] names = savedInstanceState.getStringArray("names");
+
+            if(ids != null && names != null && ids.length > 1) {
+                for (int i = 1; i < ids.length; i++){
+                    Assortment clicked = new Assortment();
+                    clicked.setUid(ids[i]);
+                    clicked.setName(names[i]);
+
+                    TextView folder = new TextView(context);
+                    folder.setText(" / " + names[i]);
+                    folder.setTag(clicked);
+                    folder.setTextSize(20);
+                    folder.setGravity(Gravity.CENTER);
+                    folder.setOnClickListener(buttons_);
+                    folder.setTextColor(getColor(R.color.gray_text));
+
+                    LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.MATCH_PARENT);
+;
+                    layoutDOM.addView(folder, lp);
+                }
+
+                showProducts(ids[ids.length - 1]);
+            }
+            else{
+                showProducts("00000000-0000-0000-0000-000000000000");
+            }
+
+            searchedText = savedInstanceState.getString("textSearched");
+            if(searchedText != null){
+                searchProducts.setQuery(searchedText, true);
+                if (timerSearch != null)
+                    timerSearch.cancel();
+                timerSearch = new Timer();
+
+                startTimerSearchText(searchedText);
+                timerSearch.schedule(timerTaskSearchText, 1200);
+            }
+        }
+        else{
+            showProducts("00000000-0000-0000-0000-000000000000");
+        }
 
         goHomeList.setOnClickListener(v -> {
             ViewGroup parent  = (ViewGroup) v.getParent();
@@ -125,6 +188,17 @@ public class ProductsActivity extends AppCompatActivity {
             }
             showProducts("00000000-0000-0000-0000-000000000000");
         });
+
+        if(sharedPreferencesSettings.getBoolean("ViewWithCatalog", false)){
+            changeColumns.setImageDrawable(getResources().getDrawable(R.drawable.ic_grid_black_24dp));
+            isViewWithCatalog = true;
+            gridView.setNumColumns(6);
+        }
+        else{
+            changeColumns.setImageDrawable(getResources().getDrawable(R.drawable.ic_list_black_24dp));
+            isViewWithCatalog = false;
+            gridView.setNumColumns(1);
+        }
 
         gridView.setOnItemClickListener((parent, view, position, id) -> {
             Assortment clicked = adapterProductsList.getItem(position);
@@ -193,16 +267,49 @@ public class ProductsActivity extends AppCompatActivity {
                     timerSearch.cancel();
                 timerSearch = new Timer();
 
+                searchedText = searchText;
                 startTimerSearchText(searchText);
                 timerSearch.schedule(timerTaskSearchText, 1200);
 
                 return true;
             }
         });
+
         searchProducts.setOnCloseListener(() -> {
             showProducts("00000000-0000-0000-0000-000000000000");
+            searchedText = null;
             return false;
         });
+    }
+    @Override
+    protected void onSaveInstanceState(Bundle bundle) {
+        super.onSaveInstanceState(bundle);
+        int sizeTextViews = layoutDOM.getChildCount();
+
+        if(sizeTextViews > 1){
+            String[] ids = new String[sizeTextViews];
+            String[] names= new String[sizeTextViews];
+
+            ids[0] = "00000000-0000-0000-0000-000000000000";
+            names[0] = "";
+
+            for(int i = 1; i < sizeTextViews; i++){
+                View item = layoutDOM.getChildAt(i);
+                Assortment assortmentEntry = (Assortment)item.getTag();
+                ids[i] = assortmentEntry.getUid();
+                names[i] = assortmentEntry.getName();
+
+                Log.e("TAG", "onSaveInstanceState: " + assortmentEntry.getUid() + assortmentEntry.getName() );
+            }
+            bundle.putStringArray("ids", ids);
+            bundle.putStringArray("names", names);
+        }
+
+        bundle.putString("textSearched", searchedText);
+    }
+
+    public static boolean isIsViewWithCatalog() {
+        return isViewWithCatalog;
     }
 
     View.OnClickListener buttons_ = view -> {
@@ -297,15 +404,15 @@ public class ProductsActivity extends AppCompatActivity {
 
         productInfoDialog.show();
 
-        int displayWidth = displayMetrics.widthPixels;
-        int displayHeight = displayMetrics.heightPixels;
-        WindowManager.LayoutParams layoutParams = new WindowManager.LayoutParams();
-        layoutParams.copyFrom(productInfoDialog.getWindow().getAttributes());
-        int dialogWindowWidth = (int) (displayWidth * 0.45f);
-        int dialogWindowHeight = (int) (displayHeight * 0.8f);
-        layoutParams.width = dialogWindowWidth;
-        layoutParams.height = dialogWindowHeight;  //LinearLayout.LayoutParams.WRAP_CONTENT
-        productInfoDialog.getWindow().setAttributes(layoutParams);
+//        int displayWidth = displayMetrics.widthPixels;
+//        int displayHeight = displayMetrics.heightPixels;
+//        WindowManager.LayoutParams layoutParams = new WindowManager.LayoutParams();
+//        layoutParams.copyFrom(productInfoDialog.getWindow().getAttributes());
+//        int dialogWindowWidth = (int) (displayWidth * 0.45f);
+//        int dialogWindowHeight = (int) (displayHeight * 0.8f);
+//        layoutParams.width = dialogWindowWidth;
+//        layoutParams.height = dialogWindowHeight;  //LinearLayout.LayoutParams.WRAP_CONTENT
+//        productInfoDialog.getWindow().setAttributes(layoutParams);
     }
 
     private void searchText(String newText) {

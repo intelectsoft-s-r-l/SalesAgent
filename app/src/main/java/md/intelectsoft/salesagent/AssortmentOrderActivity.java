@@ -21,7 +21,6 @@ import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.webkit.WebView;
 import android.widget.Button;
@@ -86,6 +85,7 @@ public class AssortmentOrderActivity extends AppCompatActivity {
     @BindView(R.id.imageGoHomeListAssortment) ImageView goHomeList;
     @BindView(R.id.searchAssortment) SearchView searchProducts;
     static ImageBadgeView shopCart;
+    @BindView(R.id.imageChangeGridColumns3) ImageView changeColumns;
 
     AdapterProductsList adapterProductsList;
     SharedPreferences sharedPreferencesSettings;
@@ -99,6 +99,11 @@ public class AssortmentOrderActivity extends AppCompatActivity {
     Context context;
     Request requestOrder;
     static Realm mRealm;
+
+    static boolean isViewWithCatalog;
+    int currentColumns;
+    String searchedText = null;
+    boolean newRequest;
 
     @OnClick(R.id.textBackMainFromAssortmentOrderCreate) void onBckClick() {
         int childCount = layoutDOM.getChildCount();
@@ -301,6 +306,22 @@ public class AssortmentOrderActivity extends AppCompatActivity {
         });
     }
 
+    @OnClick(R.id.imageChangeGridColumns3) void onChangeColumns() {
+        currentColumns = gridView.getNumColumns();
+        if(currentColumns > 1) {
+            sharedPreferencesSettings.edit().putBoolean("ViewWithCatalog", false).apply();
+            changeColumns.setImageDrawable(getResources().getDrawable(R.drawable.ic_list_black_24dp));
+            isViewWithCatalog = false;
+            gridView.setNumColumns(1);
+        }else {
+            sharedPreferencesSettings.edit().putBoolean("ViewWithCatalog", true).apply();
+            changeColumns.setImageDrawable(getResources().getDrawable(R.drawable.ic_grid_black_24dp));
+            isViewWithCatalog = true;
+            gridView.setNumColumns(6);
+        }
+        adapterProductsList.notifyDataSetChanged();
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -328,14 +349,71 @@ public class AssortmentOrderActivity extends AppCompatActivity {
         clientName = fromClient.getStringExtra("name");
         outletsAddress = fromClient.getStringExtra("address");
         clientPriceListUid = fromClient.getStringExtra("priceUid");
-        boolean newRequest = fromClient.getBooleanExtra("newRequest",false);
 
-        showProducts("00000000-0000-0000-0000-000000000000");
+        if(savedInstanceState != null){
+            String[] ids = savedInstanceState.getStringArray("ids");
+            String[] names = savedInstanceState.getStringArray("names");
 
-        if(newRequest) {
-            requestId = UUID.randomUUID().toString();
-            boolean isCreated = createNewRequest(requestId);
-            Log.d("TAG", "onCreate request: " + requestId + " is " + isCreated);
+            if(ids != null && names != null && ids.length > 1) {
+                for (int i = 1; i < ids.length; i++){
+                    Assortment clicked = new Assortment();
+                    clicked.setUid(ids[i]);
+                    clicked.setName(names[i]);
+
+                    TextView folder = new TextView(context);
+                    folder.setText(" / " + names[i]);
+                    folder.setTag(clicked);
+                    folder.setTextSize(20);
+                    folder.setGravity(Gravity.CENTER);
+                    folder.setOnClickListener(buttons_);
+                    folder.setTextColor(getColor(R.color.gray_text));
+
+                    LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.MATCH_PARENT);
+                    ;
+                    layoutDOM.addView(folder, lp);
+                }
+
+                showProducts(ids[ids.length - 1]);
+            }
+            else{
+                showProducts("00000000-0000-0000-0000-000000000000");
+            }
+
+            searchedText = savedInstanceState.getString("textSearched");
+            if(searchedText != null){
+                searchProducts.setQuery(searchedText, true);
+                if (timerSearch != null)
+                    timerSearch.cancel();
+                timerSearch = new Timer();
+
+                startTimerSearchText(searchedText);
+                timerSearch.schedule(timerTaskSearchText, 1200);
+            }
+            requestId = savedInstanceState.getString("requestId");
+            newRequest = savedInstanceState.getBoolean("newRequest");
+
+            if(requestId == null){
+                Log.e("TAG", "onCreate requestId: " + requestOrder );
+                if(newRequest) {
+                    requestId = UUID.randomUUID().toString();
+                    boolean isCreated = createNewRequest(requestId);
+                    Log.d("TAG", "onCreate request: " + requestId + " is " + isCreated);
+                }
+            }
+
+            int badges = savedInstanceState.getInt("badges");
+            shopCart.setBadgeValue(badges);
+            clientUid = savedInstanceState.getString("clientUid");
+        }
+        else{
+            showProducts("00000000-0000-0000-0000-000000000000");
+            newRequest = fromClient.getBooleanExtra("newRequest",false);
+            if(newRequest) {
+                requestId = UUID.randomUUID().toString();
+                boolean isCreated = createNewRequest(requestId);
+                Log.d("TAG", "onCreate request: " + requestId + " is " + isCreated);
+                newRequest = false;
+            }
         }
 
         goHomeList.setOnClickListener(v -> {
@@ -347,6 +425,17 @@ public class AssortmentOrderActivity extends AppCompatActivity {
             }
             showProducts("00000000-0000-0000-0000-000000000000");
         });
+
+        if(sharedPreferencesSettings.getBoolean("ViewWithCatalog", false)){
+            changeColumns.setImageDrawable(getResources().getDrawable(R.drawable.ic_grid_black_24dp));
+            isViewWithCatalog = true;
+            gridView.setNumColumns(6);
+        }
+        else{
+            changeColumns.setImageDrawable(getResources().getDrawable(R.drawable.ic_list_black_24dp));
+            isViewWithCatalog = false;
+            gridView.setNumColumns(1);
+        }
 
         gridView.setOnItemClickListener((parent, view, position, id) -> {
             Assortment clicked = adapterProductsList.getItem(position);
@@ -419,6 +508,7 @@ public class AssortmentOrderActivity extends AppCompatActivity {
                     timerSearch.cancel();
                 timerSearch = new Timer();
 
+                searchedText = searchText;
                 startTimerSearchText(searchText);
                 timerSearch.schedule(timerTaskSearchText, 1200);
 
@@ -436,6 +526,41 @@ public class AssortmentOrderActivity extends AppCompatActivity {
             shopCart.putExtra("clientUid", clientUid);
             startActivityForResult(shopCart,100);
         });
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle bundle) {
+        super.onSaveInstanceState(bundle);
+        int sizeTextViews = layoutDOM.getChildCount();
+
+        if(sizeTextViews > 1){
+            String[] ids = new String[sizeTextViews];
+            String[] names= new String[sizeTextViews];
+
+            ids[0] = "00000000-0000-0000-0000-000000000000";
+            names[0] = "";
+
+            for(int i = 1; i < sizeTextViews; i++){
+                View item = layoutDOM.getChildAt(i);
+                Assortment assortmentEntry = (Assortment)item.getTag();
+                ids[i] = assortmentEntry.getUid();
+                names[i] = assortmentEntry.getName();
+
+                Log.e("TAG", "onSaveInstanceState: " + assortmentEntry.getUid() + assortmentEntry.getName() );
+            }
+            bundle.putStringArray("ids", ids);
+            bundle.putStringArray("names", names);
+        }
+
+        bundle.putString("textSearched", searchedText);
+        bundle.putString("requestId",requestId);
+        bundle.putBoolean("newRequest", newRequest);
+        bundle.putInt("badges",shopCart.getBadgeValue());
+        bundle.putString("clientUid",clientUid);
+    }
+
+    public static boolean isIsViewWithCatalog() {
+        return isViewWithCatalog;
     }
 
     View.OnClickListener buttons_ = view -> {
@@ -703,15 +828,15 @@ public class AssortmentOrderActivity extends AppCompatActivity {
 
         productInfoDialog.show();
 
-        int displayWidth = displayMetrics.widthPixels;
-        int displayHeight = displayMetrics.heightPixels;
-        WindowManager.LayoutParams layoutParams = new WindowManager.LayoutParams();
-        layoutParams.copyFrom(productInfoDialog.getWindow().getAttributes());
-        int dialogWindowWidth = (int) (displayWidth * 0.45f);
-        int dialogWindowHeight = (int) (displayHeight * 0.8f);
-        layoutParams.width = dialogWindowWidth;
-        layoutParams.height = dialogWindowHeight;  //LinearLayout.LayoutParams.WRAP_CONTENT
-        productInfoDialog.getWindow().setAttributes(layoutParams);
+//        int displayWidth = displayMetrics.widthPixels;
+//        int displayHeight = displayMetrics.heightPixels;
+//        WindowManager.LayoutParams layoutParams = new WindowManager.LayoutParams();
+//        layoutParams.copyFrom(productInfoDialog.getWindow().getAttributes());
+//        int dialogWindowWidth = (int) (displayWidth * 0.45f);
+//        int dialogWindowHeight = (int) (displayHeight * 0.8f);
+//        layoutParams.width = dialogWindowWidth;
+//        layoutParams.height = dialogWindowHeight;  //LinearLayout.LayoutParams.WRAP_CONTENT
+//        productInfoDialog.getWindow().setAttributes(layoutParams);
     }
 
     private void searchText(String newText) {

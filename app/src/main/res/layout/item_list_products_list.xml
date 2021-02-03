@@ -8,7 +8,7 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/constraintLayout2"
         android:layout_width="0dp"
-        android:layout_height="180dp"
+        android:layout_height="wrap_content"
         android:background="@drawable/item_long_selector"
         android:elevation="5dp"
         app:layout_constraintEnd_toEndOf="parent"
@@ -17,54 +17,47 @@
 
         <TextView
             android:id="@+id/textProductCode"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="4dp"
-            android:layout_marginTop="4dp"
+            android:layout_marginTop="8dp"
             android:singleLine="true"
             android:text="#456843"
             android:textColor="#757575"
             android:textSize="14sp"
-            app:layout_constraintEnd_toStartOf="@+id/imageLikedProduct"
-            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
         <ImageView
-            android:id="@+id/imageLikedProduct"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:layout_marginEnd="3dp"
-            android:translationZ="25dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/ic_assortment_not_liked" />
-
-        <ImageView
             android:id="@+id/imageProduct"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"
             android:scaleType="centerInside"
             android:translationZ="-5dp"
-            app:layout_constraintBottom_toTopOf="@+id/textProductName"
-            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/textProductCode"
+            app:layout_constraintTop_toTopOf="parent"
             app:srcCompat="@drawable/product_image" />
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/constraintLayout3"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="2dp"
             android:background="@color/white"
             android:elevation="3dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent">
+            app:layout_constraintStart_toEndOf="@+id/imageProduct"
+            app:layout_constraintTop_toBottomOf="@+id/textProductBarcode">
 
             <TextView
                 android:id="@+id/textProductPriceDiscount"
-                android:layout_width="0dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="2dp"
                 android:singleLine="true"
@@ -72,23 +65,32 @@
                 android:textColor="@color/red"
                 android:textSize="16sp"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@+id/textProductPrice"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
                 android:id="@+id/textProductPrice"
-                android:layout_width="0dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="2dp"
+                android:layout_marginStart="8dp"
                 android:gravity="right"
                 android:singleLine="true"
                 android:text="200 MDL"
-                android:textColor="#707070"
+                android:textColor="@color/black"
+                android:textSize="16sp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/textProductPriceDiscount"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/textProductRemain"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:text="TextView"
                 android:textSize="16sp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/textProductPriceDiscount"
                 app:layout_constraintTop_toTopOf="parent" />
         </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -96,16 +98,28 @@
             android:id="@+id/textProductName"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="2dp"
-            android:layout_marginEnd="2dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="8dp"
             android:maxLines="2"
             android:text="TextViewTextViewTextViewTextViewTextViewTextView"
             android:textAllCaps="false"
             android:textColor="@color/black"
             android:textSize="16sp"
-            app:layout_constraintBottom_toTopOf="@+id/constraintLayout3"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
+            app:layout_constraintEnd_toStartOf="@+id/textProductCode"
+            app:layout_constraintStart_toEndOf="@+id/imageProduct"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/textProductBarcode"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="8dp"
+            android:text="TextView"
+            android:textColor="#757575"
+            app:layout_constraintStart_toEndOf="@+id/imageProduct"
+            app:layout_constraintTop_toBottomOf="@+id/textProductName" />
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <TextView

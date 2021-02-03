@@ -3,6 +3,7 @@ package md.intelectsoft.salesagent.Adapters;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,6 +19,8 @@ import java.util.List;
 import md.intelectsoft.salesagent.R;
 import md.intelectsoft.salesagent.RealmUtils.Assortment;
 
+import static android.content.Context.MODE_PRIVATE;
+import static md.intelectsoft.salesagent.AgentApplication.sharedPreferenceSettings;
 import static md.intelectsoft.salesagent.AssortmentOrderActivity.addProductToCart;
 
 public class AdapterProductsList extends BaseAdapter {
@@ -56,66 +59,139 @@ public class AdapterProductsList extends BaseAdapter {
     }
 
     private class ViewHolder {
-        private final TextView name;
-        private final TextView code;
-        private final ImageView image;
-        private final ImageView liked;
-        private final TextView price;
-        private final TextView priceDiscount;
-        private final TextView addToCart;
-        private final ConstraintLayout layoutPrices;
+        private TextView name;
+        private TextView code;
+        private ImageView image;
+        private ImageView liked;
+        private TextView price;
+        private TextView priceDiscount;
+        private TextView addToCart;
+        private ConstraintLayout layoutPrices;
 
-        public ViewHolder(View view) {
-            name = view.findViewById(R.id.textProductName);
-            code = view.findViewById(R.id.textProductCode);
-            price = view.findViewById(R.id.textProductPrice);
-            priceDiscount = view.findViewById(R.id.textProductPriceDiscount);
-            addToCart = view.findViewById(R.id.textAddProductToCart);
-            liked = view.findViewById(R.id.imageLikedProduct);
-            image = view.findViewById(R.id.imageProduct);
-            layoutPrices = view.findViewById(R.id.constraintLayout3);
-        }
+        //list view catalog
+        private TextView productBarcode;
+        private TextView productRemain;
 
-        public void bind(Assortment item) {
-            name.setText(item.getName());
-            code.setText("#" + item.getCode());
-            if(item.getFolder()){
-                addToCart.setVisibility(View.GONE);
-                layoutPrices.setVisibility(View.GONE);
-                image.setImageDrawable(context.getDrawable(R.drawable.folder_product_image));
+        public ViewHolder(View view, boolean isGrid) {
+            if(isGrid){
+                name = view.findViewById(R.id.textProductName);
+                code = view.findViewById(R.id.textProductCode);
+                price = view.findViewById(R.id.textProductPrice);
+                priceDiscount = view.findViewById(R.id.textProductPriceDiscount);
+                addToCart = view.findViewById(R.id.textAddProductToCart);
+                liked = view.findViewById(R.id.imageLikedProduct);
+                image = view.findViewById(R.id.imageProduct);
+                layoutPrices = view.findViewById(R.id.constraintLayout3);
             }
             else{
-                layoutPrices.setVisibility(View.VISIBLE);
+                name = view.findViewById(R.id.textProductName);
+                code = view.findViewById(R.id.textProductCode);
+                price = view.findViewById(R.id.textProductPrice);
+                priceDiscount = view.findViewById(R.id.textProductPriceDiscount);
+                addToCart = view.findViewById(R.id.textAddProductToCart);
+                liked = view.findViewById(R.id.imageLikedProduct);
+                image = view.findViewById(R.id.imageProduct);
+                layoutPrices = view.findViewById(R.id.constraintLayout3);
+                productBarcode = view.findViewById(R.id.textProductBarcode);
+                productRemain = view.findViewById(R.id.textProductRemain);
+            }
+        }
 
-                price.setText(item.getPrice() + " MDL");
+        public void bind(Assortment item, boolean isGrid) {
+            if(isGrid){
+                name.setText(item.getName());
+                code.setText("#" + item.getCode());
+                if(item.getFolder()){
+                    addToCart.setVisibility(View.GONE);
+                    layoutPrices.setVisibility(View.GONE);
+                    image.setImageDrawable(context.getDrawable(R.drawable.folder_product_image));
+                }
+                else{
+                    layoutPrices.setVisibility(View.VISIBLE);
 
-                if(item.getImage() != null){
-                    if(item.getImage().length > 0) {
-                        Bitmap productImg = BitmapFactory.decodeByteArray(item.getImage(), 0, item.getImage().length);
-                        image.setImageBitmap(productImg);
+                    price.setText(item.getPrice() + " MDL");
+
+                    if(item.getImage() != null){
+                        if(item.getImage().length > 0) {
+                            Bitmap productImg = BitmapFactory.decodeByteArray(item.getImage(), 0, item.getImage().length);
+                            image.setImageBitmap(productImg);
+                        }
+                    }
+                    else{
+                        image.setImageDrawable(context.getDrawable(R.drawable.product_image));
+                    }
+
+                    if(preview)
+                        addToCart.setVisibility(View.GONE);
+                    else{
+                        addToCart.setVisibility(View.VISIBLE);
+                        addToCart.setOnClickListener(v -> {
+                            addProductToCart(item, 1);
+                        });
+                    }
+
+                    if(item.getPriceDiscount() == 0)
+                        priceDiscount.setVisibility(View.GONE);
+                    else{
+                        priceDiscount.setVisibility(View.VISIBLE);
+                        priceDiscount.setText(item.getPriceDiscount() + " MDL");
                     }
                 }
-                else{
-                    image.setImageDrawable(context.getDrawable(R.drawable.product_image));
-                }
-
-                if(preview)
+            }
+            else{
+                name.setText(item.getName());
+                code.setText("#" + item.getCode());
+                productBarcode.setText(item.getBarCode());
+                if(item.getFolder()){
                     addToCart.setVisibility(View.GONE);
-                else{
-                    addToCart.setVisibility(View.VISIBLE);
-                    addToCart.setOnClickListener(v -> {
-                        addProductToCart(item, 1);
-                    });
+                    layoutPrices.setVisibility(View.GONE);
+                    image.setImageDrawable(context.getDrawable(R.drawable.folder_product_image));
+                    productBarcode.setVisibility(View.GONE);
+                    productRemain.setVisibility(View.GONE);
                 }
-
-                if(item.getPriceDiscount() == 0)
-                    priceDiscount.setVisibility(View.GONE);
                 else{
-                    priceDiscount.setVisibility(View.VISIBLE);
-                    priceDiscount.setText(item.getPriceDiscount() + " MDL");
+                    layoutPrices.setVisibility(View.VISIBLE);
+                    productBarcode.setVisibility(View.VISIBLE);
+                    productRemain.setVisibility(View.VISIBLE);
+
+                    price.setText(item.getPrice() + " MDL");
+
+                    if(item.getImage() != null){
+                        if(item.getImage().length > 0) {
+                            Bitmap productImg = BitmapFactory.decodeByteArray(item.getImage(), 0, item.getImage().length);
+                            image.setImageBitmap(productImg);
+                        }
+                    }
+                    else{
+                        image.setImageDrawable(context.getDrawable(R.drawable.product_image));
+                    }
+
+                    if(preview)
+                        addToCart.setVisibility(View.GONE);
+                    else{
+                        addToCart.setVisibility(View.VISIBLE);
+                        addToCart.setOnClickListener(v -> {
+                            addProductToCart(item, 1);
+                        });
+                    }
+
+                    if(item.getRemain() != 0){
+                        productRemain.setText(String.format("%.2f", item.getRemain()) + " /" + item.getUnitName());
+                        productRemain.setTextColor(context.getColor(R.color.teal_700));
+                    }
+                    else{
+                        productRemain.setText("0 /" + item.getUnitName());
+                        productRemain.setTextColor(Color.RED);
+                    }
+
+                    if(item.getPriceDiscount() == 0)
+                        priceDiscount.setVisibility(View.GONE);
+                    else{
+                        priceDiscount.setVisibility(View.VISIBLE);
+                        priceDiscount.setText(item.getPriceDiscount() + " MDL");
+                    }
                 }
             }
-
 //            vote.setText(String.valueOf(contestant.getVotes()));
 //            Picasso.get().load(contestant.getImage()).into(image);
         }
@@ -126,18 +202,21 @@ public class AdapterProductsList extends BaseAdapter {
         // GridView requires ViewHolder pattern to ensure optimal performance
         ViewHolder viewHolder;
 
-        if (currentView == null) {
-            currentView = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_list_products_list, parent, false);
-            viewHolder = new ViewHolder(currentView);
-            currentView.setTag(viewHolder);
-        } else {
-            viewHolder = (ViewHolder)currentView.getTag();
+        if(context.getSharedPreferences(sharedPreferenceSettings, MODE_PRIVATE).getBoolean("ViewWithCatalog", false)) {
+            // show products in grid view
+            currentView = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_grid_products_list, parent, false);
+            viewHolder = new ViewHolder(currentView, true);
+
+            Assortment contestant = assortmentList.get(position);
+            viewHolder.bind(contestant, true);
         }
+        else{
+            currentView = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_list_products_list, parent, false);
+            viewHolder = new ViewHolder(currentView, false);
 
-        Assortment contestant = assortmentList.get(position);
-
-        viewHolder.bind(contestant);
-
+            Assortment contestant = assortmentList.get(position);
+            viewHolder.bind(contestant, false);
+        }
         return currentView;
     }
 }

@@ -1,7 +1,6 @@
 package md.intelectsoft.salesagent;
 
 import android.annotation.SuppressLint;
-import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -19,10 +18,10 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -100,55 +99,96 @@ public class OrderDetailActivity extends AppCompatActivity {
     }
 
     @OnClick(R.id.addCommentToOrder) void addCommentToOrder(){
-        View dialogView = getLayoutInflater().inflate(R.layout.dialog_add_comments_to_order, null);
+        String lang = LocaleHelper.getLanguage(this);
 
-        Dialog orderCommentDialog = new Dialog(context,R.style.CustomDialog);
-        orderCommentDialog.setContentView(dialogView);
+        setAppLocale(lang);
 
-        EditText commentText = dialogView.findViewById(R.id.editTextCommentIput);
-        Button addComment = dialogView.findViewById(R.id.addCommentTo);
-        Button cancel = dialogView.findViewById(R.id.closeDialogComment);
-        if(orderComment != null && !orderComment.equals(""))
-            commentText.setText(orderComment);
+        final EditText input = new EditText(context);
+        input.setHint(getString(R.string.add_comment_hint_comment_dialog));
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.MATCH_PARENT);
 
-        addComment.setOnClickListener(v -> {
-            if(!commentText.getText().toString().equals(orderComment)){
-                changes+=1;
-                orderSaveChanges.setText(getString(R.string.save_changes_orders) + "(" + changes + ")");
-            }
+        new MaterialAlertDialogBuilder(this)
+                .setTitle(getString(R.string.comments_to_order_title_dialog))
+                .setView(input)
+                .setPositiveButton(getString(R.string.add_product_to_card), (dialogInterface, i) -> {
+                    if(!input.getText().toString().equals(orderComment)){
+                        changes+=1;
+                        orderSaveChanges.setText(getString(R.string.save_changes_orders) + "(" + changes + ")");
+                    }
 
-            orderComment = commentText.getText().toString();
+                    orderComment = input.getText().toString();
 
-            mRealm.executeTransaction(realm -> {
-                requestDetail.setComment(orderComment);
-            });
+                    mRealm.executeTransaction(realm -> {
+                        requestDetail.setComment(orderComment);
+                    });
 
-            orderTextComment.setText(orderComment);
-            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-            if (imm != null) {
-                imm.hideSoftInputFromWindow(commentText.getWindowToken(), 0);
-            }
-            orderCommentDialog.dismiss();
-        });
+                    orderTextComment.setText(orderComment);
+                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                    if (imm != null) {
+                        imm.hideSoftInputFromWindow(input.getWindowToken(), 0);
+                    }
+                    dialogInterface.dismiss();
+                })
+                .setNegativeButton(getString(R.string.cancel_dialog), (dialog, which) -> {
+                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                    if (imm != null) {
+                        imm.hideSoftInputFromWindow(input.getWindowToken(), 0);
+                    }
+                    dialog.dismiss();
+                })
+                .show();
 
-        cancel.setOnClickListener(v -> {
-            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-            if (imm != null) {
-                imm.hideSoftInputFromWindow(commentText.getWindowToken(), 0);
-            }
-            orderCommentDialog.dismiss();
-        });
-
-        orderCommentDialog.show();
-
-        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-        imm.toggleSoftInput(InputMethodManager.SHOW_IMPLICIT, 0);
-
-        WindowManager.LayoutParams layoutParams = new WindowManager.LayoutParams();
-        layoutParams.copyFrom(orderCommentDialog.getWindow().getAttributes());
-        layoutParams.width = 550;
-        layoutParams.height = 250;  //LinearLayout.LayoutParams.WRAP_CONTENT
-        orderCommentDialog.getWindow().setAttributes(layoutParams);
+//        View dialogView = getLayoutInflater().inflate(R.layout.dialog_add_comments_to_order, null);
+//
+//        Dialog orderCommentDialog = new Dialog(context,R.style.CustomDialog);
+//        orderCommentDialog.setContentView(dialogView);
+//
+//        EditText commentText = dialogView.findViewById(R.id.editTextCommentIput);
+//        Button addComment = dialogView.findViewById(R.id.addCommentTo);
+//        Button cancel = dialogView.findViewById(R.id.closeDialogComment);
+//        if(orderComment != null && !orderComment.equals(""))
+//            commentText.setText(orderComment);
+//
+//        addComment.setOnClickListener(v -> {
+//            if(!commentText.getText().toString().equals(orderComment)){
+//                changes+=1;
+//                orderSaveChanges.setText(getString(R.string.save_changes_orders) + "(" + changes + ")");
+//            }
+//
+//            orderComment = commentText.getText().toString();
+//
+//            mRealm.executeTransaction(realm -> {
+//                requestDetail.setComment(orderComment);
+//            });
+//
+//            orderTextComment.setText(orderComment);
+//            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+//            if (imm != null) {
+//                imm.hideSoftInputFromWindow(commentText.getWindowToken(), 0);
+//            }
+//            orderCommentDialog.dismiss();
+//        });
+//
+//        cancel.setOnClickListener(v -> {
+//            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+//            if (imm != null) {
+//                imm.hideSoftInputFromWindow(commentText.getWindowToken(), 0);
+//            }
+//            orderCommentDialog.dismiss();
+//        });
+//
+//        orderCommentDialog.show();
+//
+//        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+//        imm.toggleSoftInput(InputMethodManager.SHOW_IMPLICIT, 0);
+//
+//        WindowManager.LayoutParams layoutParams = new WindowManager.LayoutParams();
+//        layoutParams.copyFrom(orderCommentDialog.getWindow().getAttributes());
+//        layoutParams.width = 550;
+//        layoutParams.height = 250;  //LinearLayout.LayoutParams.WRAP_CONTENT
+//        orderCommentDialog.getWindow().setAttributes(layoutParams);
     }
 
     @OnClick(R.id.orderShareDocument) void getPrintRequest(){

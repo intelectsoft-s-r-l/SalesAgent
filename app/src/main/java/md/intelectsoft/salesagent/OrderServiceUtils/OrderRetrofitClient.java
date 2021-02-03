@@ -35,9 +35,9 @@ public class OrderRetrofitClient {
 
     private static OkHttpClient getOkHttpClient() {
         return new OkHttpClient.Builder()
-                .connectTimeout(8, TimeUnit.SECONDS)
-                .readTimeout(60, TimeUnit.SECONDS)
-                .writeTimeout(8, TimeUnit.SECONDS)
+                .connectTimeout(10, TimeUnit.SECONDS)
+                .readTimeout(2, TimeUnit.MINUTES)
+                .writeTimeout(10, TimeUnit.SECONDS)
 
                 .build();
     }

@@ -50,8 +50,6 @@
             android:windowSoftInputMode="stateHidden|adjustPan|adjustResize" />
         <activity
             android:name="md.intelectsoft.salesagent.AddProductsFromOrder"
-            android:configChanges="orientation"
-            android:screenOrientation="landscape"
             android:windowSoftInputMode="stateHidden|adjustPan|adjustResize" />
         <activity
             android:name="md.intelectsoft.salesagent.ShopCartActivity"
@@ -60,8 +58,6 @@
             android:windowSoftInputMode="stateHidden|adjustPan|adjustResize" />
         <activity
             android:name="md.intelectsoft.salesagent.AssortmentOrderActivity"
-            android:configChanges="orientation"
-            android:screenOrientation="landscape"
             android:windowSoftInputMode="stateHidden|adjustPan|adjustResize" />
         <activity
             android:name="md.intelectsoft.salesagent.ClientOrderActivity"
@@ -92,8 +88,6 @@
             android:windowSoftInputMode="stateHidden|adjustPan|adjustResize" />
         <activity
             android:name="md.intelectsoft.salesagent.ProductsActivity"
-            android:configChanges="orientation"
-            android:screenOrientation="landscape"
             android:windowSoftInputMode="stateHidden|adjustPan|adjustResize" />
         <activity
             android:name="md.intelectsoft.salesagent.OrdersListActivity"

@@ -220,9 +220,8 @@ public class MainActivity extends AppCompatActivity  implements NavigationView.O
 
         boolean firstStart = sharedPreferencesSettings.getBoolean("FirstStart", false);
         boolean syncToStart = sharedPreferencesSettings.getBoolean("syncToStart", false);
-
         long tokenValid = sharedPreferencesSettings.getLong("tokenValid", 0);
-        long currentTimeLong = new Date().getTime();
+
 
         deviceModel = Build.MODEL;
         deviceSN = Build.SERIAL;
@@ -232,13 +231,6 @@ public class MainActivity extends AppCompatActivity  implements NavigationView.O
         String deviceId = new UUID(androidID.hashCode(),androidID.hashCode()).toString();
         publicIp = getPublicIPAddress(this);
         privateIp = getIPAddress(true);
-
-        if(tokenValid < currentTimeLong){
-            String userName = sharedPreferencesSettings.getString("UserName","");
-            String userPass = sharedPreferencesSettings.getString("UserPass","");
-
-            authorizationToOrderService(uri, userName, userPass);
-        }
 
         if(firstStart)
             synchronizationFromStart(true);
@@ -528,9 +520,10 @@ public class MainActivity extends AppCompatActivity  implements NavigationView.O
                             if(idNews > localID)
                                 localID = idNews;
 
-                            dateNews = dateNews.replace("/Date(","");
-                            dateNews = dateNews.replace("+0200)/","");
-                            dateNews = dateNews.replace("+0300)/","");
+                            if (dateNews != null)
+                                dateNews = dateNews.replace("/Date(", "");
+                            if (dateNews != null)
+                                dateNews = dateNews.substring(0, dateNews.length() - 7);
 
                             long dateLong = Long.parseLong(dateNews);
 
@@ -604,6 +597,20 @@ public class MainActivity extends AppCompatActivity  implements NavigationView.O
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         showInformationOfRequests();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        String uri = sharedPreferencesSettings.getString("URI","0.0.0.0:1111");
+        long tokenValid = sharedPreferencesSettings.getLong("tokenValid", 0);
+        long currentTimeLong = new Date().getTime();
+        if(tokenValid < currentTimeLong){
+            String userName = sharedPreferencesSettings.getString("UserName","");
+            String userPass = sharedPreferencesSettings.getString("UserPass","");
+
+            authorizationToOrderService(uri, userName, userPass);
+        }
     }
 
     private void synchronizationFromStart(boolean auto){
@@ -903,9 +910,10 @@ public class MainActivity extends AppCompatActivity  implements NavigationView.O
                                     request.setSyncState(0);
                                     String dateDocument = request.getDateValid();
                                     if(dateDocument != null){
-                                        dateDocument = dateDocument.replace("/Date(","");
-                                        dateDocument = dateDocument.replace("+0300)/","");
-                                        dateDocument = dateDocument.replace("+0200)/","");
+                                        if (dateDocument != null)
+                                            dateDocument = dateDocument.replace("/Date(", "");
+                                        if (dateDocument != null)
+                                            dateDocument = dateDocument.substring(0, dateDocument.length() - 7);
                                     }
                                     long date = Long.parseLong(dateDocument);
                                     request.setDateToLong(date);
@@ -915,13 +923,13 @@ public class MainActivity extends AppCompatActivity  implements NavigationView.O
                                     });
                                 }
                             }
-                            showInformationOfRequests();
+
 
                             progressDialog.dismiss();
                         }
                         else{
                             progressDialog.dismiss();
-                            Toast.makeText(context, "Client list is empty!", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(context, "Orders list is empty!", Toast.LENGTH_SHORT).show();
                         }
                     }
                     else{
@@ -933,6 +941,8 @@ public class MainActivity extends AppCompatActivity  implements NavigationView.O
                     progressDialog.dismiss();
                     Toast.makeText(context, "Null response from orders list!", Toast.LENGTH_SHORT).show();
                 }
+
+                showInformationOfRequests();
             }
 
             @Override
@@ -992,10 +1002,10 @@ public class MainActivity extends AppCompatActivity  implements NavigationView.O
                         token = tokenResult.getUid();
                         String dateValid = tokenResult.getValidTo();
                         if (dateValid != null) {
-                            dateValid = dateValid.replace("/Date(", "");
-                            dateValid = dateValid.replace("+0200)/", "");
-                            dateValid = dateValid.replace("+0300)/", "");
-                            dateValid = dateValid.replace(")/", "");
+                            if (dateValid != null)
+                                dateValid = dateValid.replace("/Date(", "");
+                            if (dateValid != null)
+                                dateValid = dateValid.substring(0, dateValid.length() - 7);
                         }
                             long timeValid = Long.parseLong(dateValid);
                             sharedPreferencesSettings.edit()

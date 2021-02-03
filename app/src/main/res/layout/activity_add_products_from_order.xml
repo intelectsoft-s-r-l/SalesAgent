@@ -18,17 +18,29 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
+        <ImageView
+            android:id="@+id/imageChangeGridColumns2"
+            android:layout_width="45dp"
+            android:layout_height="45dp"
+
+            android:layout_marginEnd="8dp"
+            android:padding="4dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/imageProductAddedToOrder"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/ic_grid_black_24dp" />
+
         <SearchView
             android:id="@+id/searchAssortment"
             android:layout_width="wrap_content"
-            android:layout_height="0dp"
-            android:layout_marginTop="8dp"
+            android:layout_height="wrap_content"
             android:layout_marginEnd="8dp"
-            android:layout_marginBottom="8dp"
             android:iconifiedByDefault="true"
             android:searchIcon="@drawable/ic_search_icon"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/imageProductAddedToOrder"
+            app:layout_constraintEnd_toStartOf="@+id/imageChangeGridColumns2"
+            app:layout_constraintHorizontal_bias="1.0"
+            app:layout_constraintStart_toEndOf="@+id/productsListAppNameAssortmentOrder"
             app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
@@ -100,7 +112,7 @@
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/scrollViewDomProducts"
-        tools:listitem="@layout/item_list_products_list">
+        tools:listitem="@layout/item_grid_products_list">
 
     </GridView>
 
