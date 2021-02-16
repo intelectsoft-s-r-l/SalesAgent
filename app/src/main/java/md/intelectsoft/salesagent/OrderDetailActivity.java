@@ -91,7 +91,7 @@ public class OrderDetailActivity extends AppCompatActivity {
 
     @OnClick(R.id.textBackToListOrders) void back(){
         if(changes > 0){
-            Toast.makeText(context, "Changes is: " + changes, Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, getString(R.string.first_save_changes), Toast.LENGTH_SHORT).show();
         }
         else{
             finish();
@@ -282,18 +282,17 @@ public class OrderDetailActivity extends AppCompatActivity {
         Intent intent = getIntent();
         uid = intent.getStringExtra("uid");
         id = intent.getStringExtra("id");
-
         if(requestDetail == null)
             Log.e("TAG", "onCreate: request is null" );
-        else
+        else {
             Log.e("TAG", "onCreate: request is not null" );
-
-        requestDetail = mRealm.where(Request.class).equalTo("internId", id).or().equalTo("uid", uid).findFirst();
+        }
+        requestDetail = mRealm.where(Request.class).equalTo("internId", id).findFirst();
         if(requestDetail != null){
             changes = 0;
 
             Log.e("TAG", "Client Name: " + requestDetail.getClientName()
-            + "\n Client id: " + requestDetail.getClientUid()
+            + "\n intern uid: " + requestDetail.getUid()
             + "\n intern Id: " + requestDetail.getInternId()
                     + "\n intern Id intent: " + id
                     + "\n intern Uid intent: " + uid);
@@ -482,7 +481,7 @@ public class OrderDetailActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if(requestCode == 6547){
             if(resultCode == RESULT_OK){
-                requestDetail = mRealm.where(Request.class).equalTo("internId", id).or().equalTo("uid", uid).findFirst();
+                requestDetail = mRealm.where(Request.class).equalTo("internId", id).findFirst();
                 if(requestDetail != null){
                     RealmList<RequestLine> lines = requestDetail.getLines();
                     linesRequestDetail = new AdapterLinesRequestDetail(lines, this);
@@ -500,6 +499,8 @@ public class OrderDetailActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         requestDetail = null;
+        mRealm.close();
+        mRealm = null;
     }
 
     private void saveOrder(SaveRequestBody order){

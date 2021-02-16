@@ -26,7 +26,7 @@ import md.intelectsoft.salesagent.RealmUtils.Request;
 
 public class AdapterListRequest extends RealmBaseAdapter<Request> implements ListAdapter {
     Context context;
-    SimpleDateFormat sdfChisinau = new SimpleDateFormat("dd.MM.yyyy HH:mm");
+    SimpleDateFormat sdfChisinau = new SimpleDateFormat("dd.MM.yy HH:mm");
     TimeZone tzInChisinau = TimeZone.getTimeZone("Europe/Chisinau");
 
     private static class ViewHolder {
@@ -78,7 +78,7 @@ public class AdapterListRequest extends RealmBaseAdapter<Request> implements Lis
             if(item.getSum() != null)
                 sum = item.getSum();
 
-            viewHolder.sumRequest.setText(String.format("%.2f", sum).replace(",", ".") + " MDL");
+            viewHolder.sumRequest.setText(String.format("%.2f", sum).replace(",", "."));
 
             if(item.getSyncState() == BaseEnum.Syncronizat)
                 viewHolder.imageStateSync.setImageDrawable(context.getDrawable(R.drawable.ic_next_round_green));

@@ -75,6 +75,7 @@
             android:name="md.intelectsoft.salesagent.OrderDetailActivity"
             android:configChanges="orientation"
             android:screenOrientation="landscape"
+            android:clearTaskOnLaunch="true"
             android:windowSoftInputMode="stateHidden|adjustPan|adjustResize" />
         <activity
             android:name="md.intelectsoft.salesagent.ClientDetailActivity"
@@ -93,6 +94,7 @@
             android:name="md.intelectsoft.salesagent.OrdersListActivity"
             android:configChanges="orientation"
             android:screenOrientation="landscape"
+            android:clearTaskOnLaunch="true"
             android:windowSoftInputMode="stateHidden|adjustPan|adjustResize" />
         <activity
             android:name="md.intelectsoft.salesagent.SplashActivity"

@@ -315,7 +315,9 @@ public class OrdersListActivity extends AppCompatActivity {
                 String uidRequest = clickedRequest.getUid();
 
                 Intent detail = new Intent(context, OrderDetailActivity.class);
-                detail.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                detail.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                detail.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                detail.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 detail.putExtra("uid", uidRequest);
                 detail.putExtra("id",idRequest);
 

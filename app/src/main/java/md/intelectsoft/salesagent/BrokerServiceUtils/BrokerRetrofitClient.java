@@ -2,6 +2,7 @@ package md.intelectsoft.salesagent.BrokerServiceUtils;
 
 import java.io.IOException;
 import java.security.cert.CertificateException;
+import java.util.concurrent.TimeUnit;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLContext;
@@ -36,10 +37,19 @@ public class BrokerRetrofitClient {
             retrofit = new Retrofit.Builder()
                     .baseUrl(BaseURL_BrokerService)
                     .addConverterFactory(GsonConverterFactory.create())
-                    .client(getUnsafeOkHttpClient())
+                    .client(getOkHttpClient())
                     .build();
 
         return retrofit.create(BrokerServiceAPI.class);
+    }
+
+    private static OkHttpClient getOkHttpClient() {
+        return new OkHttpClient.Builder()
+                .connectTimeout(5, TimeUnit.SECONDS)
+                .readTimeout(60, TimeUnit.SECONDS)
+                .writeTimeout(8, TimeUnit.SECONDS)
+
+                .build();
     }
 
     private static OkHttpClient getUnsafeOkHttpClient() {

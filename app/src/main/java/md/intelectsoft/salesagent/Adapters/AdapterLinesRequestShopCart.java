@@ -78,17 +78,17 @@ public class AdapterLinesRequestShopCart extends RealmBaseAdapter<RequestLine> i
             viewHolder.nameProduct.setText(item.getAssortimentName());
             viewHolder.codeProduct.setText("#" + item.getAssortimentCode());
             viewHolder.countProduct.setText(String.format("%.2f", item.getCount()).replace(",","."));
-            viewHolder.priceProduct.setText(String.format("%.2f", item.getPrice()).replace(",",".") + " MDL");
-            viewHolder.sumProduct.setText(String.format("%.2f", item.getSum()).replace(",",".") + " MDL");
+            viewHolder.priceProduct.setText(String.format("%.2f", item.getPrice()).replace(",","."));
+            viewHolder.sumProduct.setText(String.format("%.2f", item.getSum()).replace(",","."));
             if(item.getPriceDialler() > 0)
-                viewHolder.discountProductDiller.setText(String.format("%.2f", item.getPriceDialler()).replace(",",".") + " MDL");
+                viewHolder.discountProductDiller.setText(String.format("%.2f", item.getPriceDialler()).replace(",","."));
             else
                 viewHolder.discountProductDiller.setVisibility(View.GONE);
 
             if(item.getPriceDiscount() > 0)
-                viewHolder.discountFromClient.setText(String.format("%.2f", (item.getPrice() - item.getPriceDiscount()) * item.getCount()).replace(",",".") + " MDL");
+                viewHolder.discountFromClient.setText(String.format("%.2f", (item.getPrice() - item.getPriceDiscount()) * item.getCount()).replace(",","."));
             else
-                viewHolder.discountFromClient.setText("0.0 MDL");
+                viewHolder.discountFromClient.setText("0.0");
 
             viewHolder.addCountProduct.setOnClickListener(v -> {
                 changeCountIntoLine(item.getAssortimentUid(), 1);

@@ -159,4 +159,6 @@
     <string name="order_histori_client_state_prepared">This order is prepared.</string>
     <string name="verifica_reducere_shop_cart">Check discount</string>
     <string name="daily_report_activity">Daily report</string>
+    <string name="empty_document">Document not empty. Wat do with document?</string>
+    <string name="first_save_changes">First save the changes!</string>
 </resources>

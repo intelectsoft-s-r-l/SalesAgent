@@ -35,9 +35,8 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-
 import java.io.ByteArrayOutputStream;
+import java.util.List;
 import java.util.Locale;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -99,30 +98,7 @@ public class AddProductsFromOrder extends AppCompatActivity {
     @OnClick(R.id.textBackMainFromAssortmentOrder) void onBckClick() {
         int childCount = layoutDOM.getChildCount();
         if(childCount == 1){
-
-            new MaterialAlertDialogBuilder(this)
-                    .setTitle(getString(R.string.dialog_msg_warning))
-                    .setMessage(getString(R.string.dialog_msg_log_out_user))
-                    .setPositiveButton(getString(R.string.save_local_and_exit_dialog_exit), (dialogInterface, i) -> {
-                        setResult(7777);
-                        dialogInterface.dismiss();
-                        finish();
-                    })
-                    .setNegativeButton(getString(R.string.exit_button),(dialog, which) -> {
-                        Request req = mRealm.where(Request.class).equalTo("internId",requestId).findFirst();
-                        assert req != null;
-                        RealmList<RequestLine> requestLines = req.getLines();
-                        mRealm.beginTransaction();
-                        if(requestLines != null && requestLines.size() > 0)
-                            requestLines.deleteAllFromRealm();
-
-                        req.deleteFromRealm();
-                        mRealm.commitTransaction();
-
-                        dialog.dismiss();
-                        finish();
-                    })
-                    .show();
+            finish();
 //            View dialogView = getLayoutInflater().inflate(R.layout.dialog_exit_from_assortment, null);
 //
 //            Dialog orderDialog = new Dialog(context,R.style.CustomDialog);
@@ -646,10 +622,8 @@ public class AddProductsFromOrder extends AppCompatActivity {
                 .contains("barCode", newText, Case.INSENSITIVE).or()
                 .sort("name", Sort.ASCENDING)
                 .findAllAsync();
-        adapterProductsList = new AdapterProductsListToOrder(this, result,false);
-        gridView.setAdapter(adapterProductsList);
 
-        result.addChangeListener(realmChangeListener);
+        findDiscountToAssortment(result);
     }
 
     private void startTimerSearchText(final String newText) {
@@ -681,51 +655,47 @@ public class AddProductsFromOrder extends AppCompatActivity {
 
     private void showProducts(String parentId) {
         RealmResults<Assortment> result = null;
-        PriceList priceList = null;
         mRealm.beginTransaction();
         result = mRealm.where(Assortment.class).equalTo("parentUid", parentId).findAllAsync();
-        priceList = mRealm.where(PriceList.class).equalTo("priceListUid", clientPriceUid).findFirst();
         mRealm.commitTransaction();
 
         result = result.sort("name", Sort.ASCENDING);
         result = result.sort("isFolder", Sort.DESCENDING);
 
+        findDiscountToAssortment(result);
+    }
+
+    private void findDiscountToAssortment(RealmResults<Assortment> listProducts){
+        PriceList priceList = null;
+        mRealm.beginTransaction();
+        priceList = mRealm.where(PriceList.class).equalTo("priceListUid", clientPriceUid).findFirst();
+        mRealm.commitTransaction();
+
+        List<Assortment> lisOfAssortment = mRealm.copyFromRealm(listProducts);
+
         if(priceList != null){
             RealmList<Price> listPrices = priceList.getPrices();
 
             if(listPrices != null && listPrices.size() > 0){
-                for(int i = 0; i < result.size(); i++){
-                    Assortment item = result.get(i);
+                for(int i = 0; i < lisOfAssortment.size(); i++){
+                    Assortment item = lisOfAssortment.get(i);
                     if(!item.getFolder()){
-                        Price discount = listPrices.where().equalTo("priceLineUid", item.getPricelineUid()).findFirst();
+                        Price discount = listPrices.where().equalTo("priceLineUid", item.getPricelineUid()).or().equalTo("assortimentUid", item.getUid()).findFirst();
                         if(discount != null){
-                            mRealm.beginTransaction();
+                            Log.d("TAG", "showProducts: discount price" + discount.getPrice());
                             item.setPriceDiscount(discount.getPrice());
-                            mRealm.commitTransaction();
                         }
                     }
                 }
             }
         }
-        else{
-            for(int i = 0; i < result.size(); i++){
-                Assortment item = result.get(i);
-                if(!item.getFolder()){
-                    mRealm.beginTransaction();
-                    item.setPriceDiscount(0);
-                    mRealm.commitTransaction();
-                }
-            }
-        }
 
-        adapterProductsList = new AdapterProductsListToOrder(this, result,false);
+        adapterProductsList = new AdapterProductsListToOrder(this, lisOfAssortment,false);
         gridView.setAdapter(adapterProductsList);
-
-        result.addChangeListener(realmChangeListener);
     }
 
     private void setNameTextColor(){
-        SpannableString s = new SpannableString("Sales Agent - Add products to order");
+        SpannableString s = new SpannableString("Add products");
         s.setSpan(new ForegroundColorSpan(getColor(R.color.orange)), 0, 1, 0);
         s.setSpan(new ForegroundColorSpan(getColor(R.color.black)), 1, s.length(), 0);
 
