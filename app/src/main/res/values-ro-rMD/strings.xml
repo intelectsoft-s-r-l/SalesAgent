@@ -159,4 +159,6 @@
     <string name="order_histori_client_state_prepared">Această comandă este pregătită.</string>
     <string name="verifica_reducere_shop_cart">Verifică reducere</string>
     <string name="daily_report_activity">Comenzi pe zi</string>
+    <string name="empty_document">Documentul nu este salvat! Cum procedam?</string>
+    <string name="first_save_changes">Intai salvati modificarile!</string>
 </resources>

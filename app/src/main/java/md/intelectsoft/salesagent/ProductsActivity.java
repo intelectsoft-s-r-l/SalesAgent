@@ -479,7 +479,7 @@ public class ProductsActivity extends AppCompatActivity {
     }
 
     private void setNameTextColor(){
-        SpannableString s = new SpannableString("Sales Agent - " + getString(R.string.products_header_activity));
+        SpannableString s = new SpannableString(getString(R.string.products_header_activity));
         s.setSpan(new ForegroundColorSpan(getColor(R.color.orange)), 0, 1, 0);
         s.setSpan(new ForegroundColorSpan(getColor(R.color.black)), 1, s.length(), 0);
 

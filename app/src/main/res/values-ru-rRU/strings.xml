@@ -158,4 +158,6 @@
     <string name="order_histori_client_state_prepared">Этот заказ приготовлен.</string>
     <string name="verifica_reducere_shop_cart">Проверить скидку</string>
     <string name="daily_report_activity">Заказы за день</string>
+    <string name="empty_document">Документ не сохранен. Что делать?</string>
+    <string name="first_save_changes">Сперва сохраните изминения!</string>
 </resources>

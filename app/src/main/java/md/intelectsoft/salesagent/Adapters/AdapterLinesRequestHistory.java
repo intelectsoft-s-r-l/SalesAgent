@@ -58,8 +58,8 @@ public class AdapterLinesRequestHistory extends ArrayAdapter<RequestLine> {
         viewHolder.nameProduct.setText(item.getAssortimentName());
         viewHolder.codeProduct.setText("#" + item.getAssortimentCode());
         viewHolder.countProduct.setText(String.format("%.2f", item.getCount()).replace(",","."));
-        viewHolder.priceProduct.setText(String.format("%.2f", item.getPrice()).replace(",",".") + " MDL");
-        viewHolder.sumProduct.setText(String.format("%.2f", item.getSum()).replace(",",".") + " MDL");
+        viewHolder.priceProduct.setText(String.format("%.2f", item.getPrice()).replace(",",".") );
+        viewHolder.sumProduct.setText(String.format("%.2f", item.getSum()).replace(",","."));
 
         return convertView;
     }

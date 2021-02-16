@@ -113,7 +113,7 @@ public class AssortmentOrderActivity extends AppCompatActivity {
             setAppLocale(lang);
             new MaterialAlertDialogBuilder(this)
                     .setTitle(getString(R.string.dialog_msg_warning))
-                    .setMessage(getString(R.string.dialog_msg_log_out_user))
+                    .setMessage(getString(R.string.empty_document))
                     .setPositiveButton(getString(R.string.save_local_and_exit_dialog_exit), (dialogInterface, i) -> {
                         setResult(7777);
                         dialogInterface.dismiss();
@@ -839,19 +839,6 @@ public class AssortmentOrderActivity extends AppCompatActivity {
 //        productInfoDialog.getWindow().setAttributes(layoutParams);
     }
 
-    private void searchText(String newText) {
-        RealmResults<Assortment> result = mRealm.where(Assortment.class)
-                .contains("name", newText, Case.INSENSITIVE).or()
-                .contains("code", newText, Case.INSENSITIVE).or()
-                .contains("barCode", newText, Case.INSENSITIVE).or()
-                .sort("name", Sort.ASCENDING)
-                .findAllAsync();
-        adapterProductsList = new AdapterProductsList(this, result,false);
-        gridView.setAdapter(adapterProductsList);
-
-        result.addChangeListener(realmChangeListener);
-    }
-
     private void startTimerSearchText(final String newText) {
         timerTaskSearchText = new TimerTask() {
             @Override
@@ -881,18 +868,38 @@ public class AssortmentOrderActivity extends AppCompatActivity {
         }
     };
 
+    private void searchText(String newText) {
+        RealmResults<Assortment> result = mRealm.where(Assortment.class)
+                .contains("name", newText, Case.INSENSITIVE).or()
+                .contains("code", newText, Case.INSENSITIVE).or()
+                .contains("barCode", newText, Case.INSENSITIVE).or()
+                .sort("name", Sort.ASCENDING)
+                .findAllAsync();
+
+        findDiscountToAssortment(result);
+//        result.addChangeListener(realmChangeListener);
+    }
+
     private void showProducts(String parentId) {
         RealmResults<Assortment> result = null;
-        PriceList priceList = null;
         mRealm.beginTransaction();
         result = mRealm.where(Assortment.class).equalTo("parentUid", parentId).findAllAsync();
-        priceList = mRealm.where(PriceList.class).equalTo("priceListUid", clientPriceListUid).findFirst();
         mRealm.commitTransaction();
 
         result = result.sort("name", Sort.ASCENDING);
         result = result.sort("isFolder", Sort.DESCENDING);
 
-        List<Assortment> lisOfAssortment = mRealm.copyFromRealm(result);
+        findDiscountToAssortment(result);
+//        result.addChangeListener(realmChangeListener);
+    }
+
+    private void findDiscountToAssortment(RealmResults<Assortment> listProducts){
+        PriceList priceList = null;
+        mRealm.beginTransaction();
+        priceList = mRealm.where(PriceList.class).equalTo("priceListUid", clientPriceListUid).findFirst();
+        mRealm.commitTransaction();
+
+        List<Assortment> lisOfAssortment = mRealm.copyFromRealm(listProducts);
 
         if(priceList != null){
             RealmList<Price> listPrices = priceList.getPrices();
@@ -913,8 +920,6 @@ public class AssortmentOrderActivity extends AppCompatActivity {
 
         adapterProductsList = new AdapterProductsList(this, lisOfAssortment,false);
         gridView.setAdapter(adapterProductsList);
-
-//        result.addChangeListener(realmChangeListener);
     }
 
     @Override
@@ -933,7 +938,7 @@ public class AssortmentOrderActivity extends AppCompatActivity {
     }
 
     private void setNameTextColor(){
-        SpannableString s = new SpannableString("Sales Agent - " + getString(R.string.shopping_cart_orders));
+        SpannableString s = new SpannableString(getString(R.string.shopping_cart_orders));
         s.setSpan(new ForegroundColorSpan(getColor(R.color.orange)), 0, 1, 0);
         s.setSpan(new ForegroundColorSpan(getColor(R.color.black)), 1, s.length(), 0);
 

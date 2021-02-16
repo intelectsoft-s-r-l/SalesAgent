@@ -30,19 +30,6 @@
             app:layout_constraintTop_toTopOf="parent"
             app:srcCompat="@drawable/ic_grid_black_24dp" />
 
-        <SearchView
-            android:id="@+id/searchAssortment"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="8dp"
-            android:iconifiedByDefault="true"
-            android:searchIcon="@drawable/ic_search_icon"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/imageChangeGridColumns2"
-            app:layout_constraintHorizontal_bias="1.0"
-            app:layout_constraintStart_toEndOf="@+id/productsListAppNameAssortmentOrder"
-            app:layout_constraintTop_toTopOf="parent" />
-
         <TextView
             android:id="@+id/productsListAppNameAssortmentOrder"
             android:layout_width="wrap_content"
@@ -91,6 +78,26 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="45dp"
+            android:layout_marginEnd="8dp"
+            android:orientation="horizontal"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/imageChangeGridColumns2"
+            app:layout_constraintStart_toEndOf="@+id/productsListAppNameAssortmentOrder"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <SearchView
+                android:id="@+id/searchAssortment"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:iconifiedByDefault="true"
+                android:layoutDirection="rtl"
+                android:searchIcon="@drawable/ic_search_icon" />
+        </LinearLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
