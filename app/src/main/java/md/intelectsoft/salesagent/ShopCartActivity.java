@@ -79,7 +79,7 @@ public class ShopCartActivity extends AppCompatActivity {
         ClientPricesBody reviewPrices = new ClientPricesBody();
         List<String> priceList = new ArrayList<>();
         for (int i = 0; i < linesRequestDetail.getCount(); i++) {
-            String priceLine = linesRequestDetail.getItem(i).getPriceLineUid();
+            String priceLine = (String) linesRequestDetail.getItem(i).getPriceLineUid();
             priceList.add(priceLine);
         }
         reviewPrices.setPricelines(priceList);
@@ -146,8 +146,6 @@ public class ShopCartActivity extends AppCompatActivity {
                 Toast.makeText(context, "Error check discount: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
-
-
     }
 
     @OnClick(R.id.addCommentToOrderShopCart) void addCommentShopCart() {

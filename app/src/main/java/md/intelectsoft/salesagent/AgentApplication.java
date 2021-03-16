@@ -26,7 +26,7 @@ public class AgentApplication extends Application {
         super.onCreate();
 
         Realm.init(this);
-        final RealmConfiguration configuration = new RealmConfiguration.Builder().name("e_agent.realm").schemaVersion(4).migration(new RealmMigrations()).build();
+        final RealmConfiguration configuration = new RealmConfiguration.Builder().name("e_agent.realm").schemaVersion(4).migration(new RealmMigrations()).allowWritesOnUiThread(true).build();
         Realm.setDefaultConfiguration(configuration);
         Realm.getInstance(configuration);
 

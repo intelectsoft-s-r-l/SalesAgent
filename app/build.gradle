@@ -14,8 +14,8 @@ android {
         applicationId "md.intelectsoft.salesagent"
         minSdkVersion 23
         targetSdkVersion 30
-        versionCode 11
-        versionName "2.1"
+        versionCode 13
+        versionName "2.3"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
