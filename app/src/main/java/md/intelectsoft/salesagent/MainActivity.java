@@ -237,14 +237,13 @@ public class MainActivity extends AppCompatActivity  implements NavigationView.O
         else if(syncToStart){
             synchronizationFromStart(false);
         }
-        else {
+        else
             getInformationOrders();
-            String code = sharedPreferencesSettings.getString("LicenseActivationCode","");
-            String licenseID = sharedPreferencesSettings.getString("LicenseID", null);
 
-            getURI(licenseID, code);
-        }
+        String code = sharedPreferencesSettings.getString("LicenseActivationCode","");
+        String licenseID = sharedPreferencesSettings.getString("LicenseID", null);
 
+        getURI(licenseID, code);
         getNews();
 
         View headerLayout = navigationView.getHeaderView(0);
