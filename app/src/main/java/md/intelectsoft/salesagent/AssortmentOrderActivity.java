@@ -30,7 +30,6 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.SearchView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -468,7 +467,7 @@ public class AssortmentOrderActivity extends AppCompatActivity {
                     @Override
                     public void onFailure(Call<AssortmentDescription> call, Throwable t) {
                         progressDialog.dismiss();
-                        Toast.makeText(context, "Load information failure: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                        showDialogProductInfo(null,clicked);
                     }
                 });
 
