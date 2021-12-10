@@ -265,7 +265,7 @@ public class OrdersListActivity extends AppCompatActivity {
         WindowManager.LayoutParams layoutParams = new WindowManager.LayoutParams();
         layoutParams.copyFrom(sortOrdersDialog.getWindow().getAttributes());
         layoutParams.width = 480;
-        layoutParams.height = 630;  //LinearLayout.LayoutParams.WRAP_CONTENT
+//        layoutParams.height = 630;  //LinearLayout.LayoutParams.WRAP_CONTENT
         sortOrdersDialog.getWindow().setAttributes(layoutParams);
     }
 

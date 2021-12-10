@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="480dp"
-    android:layout_height="630dp">
+    android:layout_height="wrap_content">
 
     <com.google.android.material.chip.ChipGroup
         android:id="@+id/chipGroup"
@@ -58,7 +58,7 @@
         android:id="@+id/applyFilterSortOrders"
         android:layout_width="200dp"
         android:layout_height="50dp"
-        android:layout_marginBottom="24dp"
+        android:layout_marginBottom="16dp"
         android:insetTop="4dp"
         android:insetBottom="4dp"
         android:text="@string/apply_filter_dialog"
@@ -66,13 +66,14 @@
         app:cornerRadius="50dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textClearFilter" />
 
     <TextView
         android:id="@+id/textView31"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="8dp"
         android:fontFamily="@font/poppins_semibold"
         android:text="@string/filter_order_dialog"
         android:textColor="@color/orange"
@@ -86,7 +87,7 @@
         android:id="@+id/divider5"
         android:layout_width="match_parent"
         android:layout_height="2dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="8dp"
         android:background="#707070"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -136,7 +137,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="24dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="8dp"
         android:layout_marginEnd="24dp"
         android:buttonTint="#FFC107"
         android:checked="false"
@@ -156,10 +157,10 @@
         android:layout_marginEnd="24dp"
         android:background="@drawable/background_clients_item"
         android:clickable="true"
+        android:focusable="true"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView52"
-        android:focusable="true">
+        app:layout_constraintTop_toBottomOf="@+id/textView52">
 
         <TextView
             android:id="@+id/textFilterOrderDate"
@@ -194,10 +195,10 @@
         android:layout_marginEnd="24dp"
         android:background="@drawable/background_clients_item"
         android:clickable="true"
+        android:focusable="true"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView56"
-        android:focusable="true">
+        app:layout_constraintTop_toBottomOf="@+id/textView56">
 
         <TextView
             android:id="@+id/textFilterOrderCode"
@@ -227,14 +228,18 @@
         android:id="@+id/textClearFilter"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="20dp"
-        android:text="@string/clear_all_filters_filter_dialog"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="16dp"
         android:clickable="true"
         android:focusable="true"
+        android:text="@string/clear_all_filters_filter_dialog"
         android:textColor="@color/black"
         android:textSize="14sp"
         app:layout_constraintBottom_toTopOf="@+id/applyFilterSortOrders"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/checkBoxSaveFilter"
+        app:layout_constraintVertical_bias="1.0"
+        app:layout_constraintVertical_chainStyle="packed" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

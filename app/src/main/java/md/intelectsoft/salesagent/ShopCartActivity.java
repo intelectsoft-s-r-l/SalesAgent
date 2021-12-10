@@ -1,6 +1,7 @@
 package md.intelectsoft.salesagent;
 
 import android.annotation.SuppressLint;
+import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -14,7 +15,10 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -70,7 +74,7 @@ public class ShopCartActivity extends AppCompatActivity {
     OrderServiceAPI orderServiceAPI;
     ProgressDialog progressDialog;
     Context context;
-    String token, orderComment, clientUid;
+    String token, orderComment, clientUid, orderAdditionalComment;
     static Realm mRealm;
 
     static Request request;
@@ -149,91 +153,140 @@ public class ShopCartActivity extends AppCompatActivity {
     }
 
     @OnClick(R.id.addCommentToOrderShopCart) void addCommentShopCart() {
-        final EditText input = new EditText(context);
-        input.setHint(getString(R.string.add_comment_hint_comment_dialog));
-        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.MATCH_PARENT);
-
-        if(orderComment != null && !orderComment.equals(""))
-            input.setText(orderComment);
-
-
-        new MaterialAlertDialogBuilder(this)
-                .setTitle(getString(R.string.comments_to_order_title_dialog))
-                .setView(input)
-                .setPositiveButton(getString(R.string.add_product_to_card), (dialogInterface, i) -> {
-                    String text = input.getText().toString();
-                    if(!text.equals("")){
-                        mRealm.executeTransaction(realm -> {
-                            request.setComment(text);
-                        });
-
-                        shopCartComment.setText(text);
-
-                        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                        if (imm != null) {
-                            imm.hideSoftInputFromWindow(input.getWindowToken(), 0);
-                        }
-                        dialogInterface.dismiss();
-                    }
-                })
-                .setNegativeButton(getString(R.string.cancel_dialog), (dialog, which) -> {
-                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                    if (imm != null) {
-                        imm.hideSoftInputFromWindow(input.getWindowToken(), 0);
-                    }
-                    dialog.dismiss();
-                })
-                .show();
-
-//        View dialogView = getLayoutInflater().inflate(R.layout.dialog_add_comments_to_order, null);
+//        final EditText input = new EditText(context);
+//        input.setHint(getString(R.string.add_comment_hint_comment_dialog));
+//        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+//                LinearLayout.LayoutParams.MATCH_PARENT,
+//                LinearLayout.LayoutParams.MATCH_PARENT);
 //
-//        Dialog orderCommentDialog = new Dialog(context,R.style.CustomDialog);
-//        orderCommentDialog.setContentView(dialogView);
-//        orderCommentDialog.setCancelable(false);
-//
-//        EditText commentText = dialogView.findViewById(R.id.editTextCommentIput);
-//        Button addComment = dialogView.findViewById(R.id.addCommentTo);
-//        Button cancel = dialogView.findViewById(R.id.closeDialogComment);
 //        if(orderComment != null && !orderComment.equals(""))
-//            commentText.setText(orderComment);
+//            input.setText(orderComment);
+
 //
-//        addComment.setOnClickListener(v -> {
-//            String text = commentText.getText().toString();
-//            if(!text.equals("")){
-//                mRealm.executeTransaction(realm -> {
-//                    request.setComment(text);
-//                });
+//        new MaterialAlertDialogBuilder(this)
+//                .setTitle(getString(R.string.comments_to_order_title_dialog))
+//                .setView(input)
+//                .setPositiveButton(getString(R.string.add_product_to_card), (dialogInterface, i) -> {
+//                    String text = input.getText().toString();
+//                    if(!text.equals("")){
+//                        mRealm.executeTransaction(realm -> {
+//                            request.setComment(text);
+//                        });
 //
-//                shopCartComment.setText(text);
+//                        shopCartComment.setText(text);
 //
-//                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-//                if (imm != null) {
-//                    imm.hideSoftInputFromWindow(commentText.getWindowToken(), 0);
-//                }
-//                orderCommentDialog.dismiss();
-//            }
-//        });
-//
-//        cancel.setOnClickListener(v -> {
-//            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-//            if (imm != null) {
-//                imm.hideSoftInputFromWindow(commentText.getWindowToken(), 0);
-//            }
-//            orderCommentDialog.dismiss();
-//        });
-//
-//        orderCommentDialog.show();
-//
-//        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-//        imm.toggleSoftInput(InputMethodManager.SHOW_IMPLICIT, 0);
-//
-//        WindowManager.LayoutParams layoutParams = new WindowManager.LayoutParams();
-//        layoutParams.copyFrom(orderCommentDialog.getWindow().getAttributes());
-//        layoutParams.width = 550;
-//        layoutParams.height = 250;  //LinearLayout.LayoutParams.WRAP_CONTENT
-//        orderCommentDialog.getWindow().setAttributes(layoutParams);
+//                        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+//                        if (imm != null) {
+//                            imm.hideSoftInputFromWindow(input.getWindowToken(), 0);
+//                        }
+//                        dialogInterface.dismiss();
+//                    }
+//                })
+//                .setNegativeButton(getString(R.string.cancel_dialog), (dialog, which) -> {
+//                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+//                    if (imm != null) {
+//                        imm.hideSoftInputFromWindow(input.getWindowToken(), 0);
+//                    }
+//                    dialog.dismiss();
+//                })
+//                .show();
+
+        View dialogView = getLayoutInflater().inflate(R.layout.dialog_add_comments_to_order, null);
+
+        Dialog orderCommentDialog = new Dialog(context,R.style.CustomDialog);
+        orderCommentDialog.setContentView(dialogView);
+        orderCommentDialog.setCancelable(false);
+
+        EditText commentText = dialogView.findViewById(R.id.editTextCommentIput);
+        EditText commentName = dialogView.findViewById(R.id.editTextCommentName);
+        EditText commentSurname = dialogView.findViewById(R.id.editTextCommentSurname);
+        EditText commentPhone = dialogView.findViewById(R.id.editTextCommentPhone);
+        EditText commentAddress = dialogView.findViewById(R.id.editTextCommentAddress);
+        CheckBox saveInfo = dialogView.findViewById(R.id.keepDataCheckBox);
+        Button addComment = dialogView.findViewById(R.id.addCommentTo);
+        Button cancel = dialogView.findViewById(R.id.closeDialogComment);
+
+        Client client = mRealm.where(Client.class).equalTo("uid", clientUid).findFirst();
+        boolean isChecked = false;
+        if(client != null)
+            isChecked = client.isSavedDataComment();
+
+        saveInfo.setChecked(isChecked);
+        if(isChecked){
+            if(client.getNamePerson() != null && !client.getNamePerson().equals(""))
+                commentName.setText(client.getNamePerson());
+            if(client.getSurName() != null && !client.getSurName().equals(""))
+                commentSurname.setText(client.getSurName());
+            if(client.getPhone() != null && !client.getPhone().equals(""))
+                commentPhone.setText(client.getPhone());
+            if(client.getAddress() != null && !client.getAddress().equals(""))
+                commentAddress.setText(client.getAddress());
+            if(orderAdditionalComment != null && !orderAdditionalComment.equals(""))
+                commentText.setText(orderAdditionalComment);
+        }
+
+        addComment.setOnClickListener(v -> {
+            String text = "";
+            if(!commentName.getText().toString().equals(""))
+                text = text + " " + commentName.getText().toString();
+            if(!commentSurname.getText().toString().equals(""))
+                text = text + " " + commentSurname.getText().toString();
+            if(!commentPhone.getText().toString().equals(""))
+                text = text + ", tel. " + commentPhone.getText().toString();
+            if(!commentAddress.getText().toString().equals(""))
+                text = text + ", Adresa:  " + commentAddress.getText().toString();
+            if(!commentText.getText().toString().equals("")){
+                orderAdditionalComment = commentText.getText().toString();
+                text = text + "/ " + commentText.getText().toString();
+            }
+
+            final String toOrderSave = text;
+            mRealm.executeTransaction(realm -> {
+                Client client2 = realm.where(Client.class).equalTo("uid", clientUid).findFirst();
+                if(client2 != null){
+                    client2.setSavedDataComment(saveInfo.isChecked());
+                    if(saveInfo.isChecked()){
+                        if(!commentName.getText().toString().equals(""))
+                            client2.setNamePerson(commentName.getText().toString());
+                        if(!commentSurname.getText().toString().equals(""))
+                            client2.setSurName(commentSurname.getText().toString());
+                        if(!commentAddress.getText().toString().equals(""))
+                            client2.setAddress(commentAddress.getText().toString());
+                        if(!commentPhone.getText().toString().equals(""))
+                            client2.setPhone(commentPhone.getText().toString());
+                        if(!commentText.getText().toString().equals(""))
+                            client2.setAdditionalInfo(commentText.getText().toString());
+                    }
+                }
+                request.setComment(toOrderSave);
+            });
+                shopCartComment.setText(text);
+
+                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                if (imm != null) {
+                    imm.hideSoftInputFromWindow(commentName.getWindowToken(), 0);
+                }
+                orderCommentDialog.dismiss();
+        });
+
+        cancel.setOnClickListener(v -> {
+            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+            if (imm != null) {
+                imm.hideSoftInputFromWindow(commentName.getWindowToken(), 0);
+            }
+            orderCommentDialog.dismiss();
+        });
+
+        orderCommentDialog.show();
+
+        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.toggleSoftInput(InputMethodManager.SHOW_IMPLICIT, 0);
+
+        WindowManager.LayoutParams layoutParams = new WindowManager.LayoutParams();
+        layoutParams.copyFrom(orderCommentDialog.getWindow().getAttributes());
+        layoutParams.width = 550;
+        layoutParams.height = LinearLayout.LayoutParams.WRAP_CONTENT;
+        orderCommentDialog.getWindow().setAttributes(layoutParams);
     }
 
     @OnClick(R.id.orderShopCartSaveChanges) void saveLocalOrderDraft() {
@@ -425,7 +478,7 @@ public class ShopCartActivity extends AppCompatActivity {
 
             RealmList<RequestLine> lines = request.getLines();
             if(lines != null && lines.size() > 0){
-                linesRequestDetail = new AdapterLinesRequestShopCart(lines, this);
+                linesRequestDetail = new AdapterLinesRequestShopCart(lines, this,getLayoutInflater());
                 linesList.setAdapter(linesRequestDetail);
             }
         }
@@ -433,7 +486,7 @@ public class ShopCartActivity extends AppCompatActivity {
         progressDialog.dismiss();
     }
 
-    public static  void changeCountIntoLine (String assortmentUid, double count){
+    public static  void changeCountIntoLine (String assortmentUid, double count, boolean replace){
         RealmList<RequestLine> lines = request.getLines();
         for(RequestLine line : lines){
             if(line.getAssortimentUid().equals(assortmentUid)){
@@ -448,16 +501,28 @@ public class ShopCartActivity extends AppCompatActivity {
 
                 double lineCount = line.getCount();
 
-                if(lineCount + count > 0) {
-                    lineCount = lineCount + count;
-
+                if(replace){
                     mRealm.beginTransaction();
 
                     request.setSum(request.getSum() - line.getSum());
-                    line.setSum(lineCount * linePrice);
-                    line.setCount(lineCount);
+                    line.setSum(count * linePrice);
+                    line.setCount(count);
                     request.setSum(request.getSum() + line.getSum());
                     mRealm.commitTransaction();
+                }
+                else{
+                    if(lineCount + count > 0) {
+                        lineCount = lineCount + count;
+
+                        mRealm.beginTransaction();
+
+                        request.setSum(request.getSum() - line.getSum());
+                        line.setSum(lineCount * linePrice);
+                        line.setCount(lineCount);
+                        request.setSum(request.getSum() + line.getSum());
+                        mRealm.commitTransaction();
+                    }
+
                 }
                 break;
             }

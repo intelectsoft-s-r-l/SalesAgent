@@ -193,4 +193,5 @@ public class Request extends RealmObject {
     public void setToDelete(boolean toDelete) {
         this.toDelete = toDelete;
     }
+
 }

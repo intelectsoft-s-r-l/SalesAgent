@@ -89,6 +89,7 @@
             android:id="@+id/textCountProduct"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:clickable="true"
             android:gravity="center"
             android:singleLine="true"
             android:text="3"

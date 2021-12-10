@@ -21,7 +21,7 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public class BrokerRetrofitClient {
-    private static String BaseURL_BrokerService = "https://dev.edi.md/";
+    private static String BaseURL_BrokerService = "https://api.edi.md/";
 //private static final String BaseURL_BrokerService = "http://192.168.1.182:5050/";
     private static Retrofit retrofit = null;
 
@@ -31,7 +31,7 @@ public class BrokerRetrofitClient {
             BaseURL_BrokerService = "https://api.edi.md/";
         }
         else if(BuildConfig.BUILD_TYPE.equals("debug")){
-            BaseURL_BrokerService = "https://dev.edi.md/";
+            BaseURL_BrokerService = "https://api.edi.md/";
         }
         if(retrofit == null)
             retrofit = new Retrofit.Builder()

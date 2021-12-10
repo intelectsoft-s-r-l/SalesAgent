@@ -26,6 +26,7 @@ import android.webkit.WebView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.GridView;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.SearchView;
@@ -92,6 +93,7 @@ public class AddProductsFromOrder extends AppCompatActivity {
     static Realm mRealm;
 
     static boolean isViewWithCatalog;
+    String clickedId = "00000000-0000-0000-0000-000000000000";
     int currentColumns;
     String searchedText = null;
 
@@ -265,41 +267,13 @@ public class AddProductsFromOrder extends AppCompatActivity {
             Assortment clicked = adapterProductsList.getItem(position);
             if( !clicked.getFolder()){
                 //request info about product and set dialog with information
-                Call<AssortmentDescription> call = orderServiceAPI.getAssortmentDescription(token, clicked.getUid());
+                showDialogProductInfo(null,clicked);
 
-                progressDialog.setMessage("Obtain information about product...");
-                progressDialog.setCancelable(false);
-                progressDialog.setIndeterminate(true);
-                progressDialog.setButton(DialogInterface.BUTTON_NEGATIVE, "Cancel",(dialog, which) -> {
-                    call.cancel();
-                    if(call.isCanceled())
-                        dialog.dismiss();
-                });
-                progressDialog.show();
-
-                call.enqueue(new Callback<AssortmentDescription>() {
-                    @Override
-                    public void onResponse(Call<AssortmentDescription> call, Response<AssortmentDescription> response) {
-                        AssortmentDescription description = response.body();
-                        progressDialog.dismiss();
-
-                        if(description != null && description.getErrorCode() == 0)
-                            showDialogProductInfo(description,clicked);
-                        else
-                            showDialogProductInfo(null,clicked);
-                    }
-
-                    @Override
-                    public void onFailure(Call<AssortmentDescription> call, Throwable t) {
-                        progressDialog.dismiss();
-                        Toast.makeText(context, "Load information failure: " + t.getMessage(), Toast.LENGTH_SHORT).show();
-                    }
-                });
 
             }
             else{
                 //show assortment into folder
-                String clickedId = clicked.getUid();
+                clickedId = clicked.getUid();
                 String clickedName = clicked.getName();
 
                 TextView folder = new TextView(context);
@@ -340,7 +314,7 @@ public class AddProductsFromOrder extends AppCompatActivity {
             }
         });
         searchProducts.setOnCloseListener(() -> {
-            showProducts("00000000-0000-0000-0000-000000000000");
+            showProducts(clickedId);
             return false;
         });
 
@@ -456,6 +430,8 @@ public class AddProductsFromOrder extends AppCompatActivity {
                 line.setCount(count);
                 line.setPrice(product.getPrice());
                 line.setPriceLineUid(product.getPricelineUid());
+                line.setUnitName(product.getUnitName());
+
                 if(product.getPriceDiscount() > 0){
                     line.setPriceDiscount(product.getPrice() - product.getPriceDiscount());
                     line.setSum(product.getPriceDiscount() * count);
@@ -493,6 +469,7 @@ public class AddProductsFromOrder extends AppCompatActivity {
             line.setCount(count);
             line.setPrice(product.getPrice());
             line.setPriceLineUid(product.getPricelineUid());
+            line.setUnitName(product.getUnitName());
 
             if(product.getPriceDiscount() > 0){
                 line.setPriceDiscount(product.getPrice() - product.getPriceDiscount());
@@ -527,6 +504,7 @@ public class AddProductsFromOrder extends AppCompatActivity {
         TextView productName = dialogView.findViewById(R.id.textDialogInfoProductName);
         TextView productDiscount = dialogView.findViewById(R.id.textDialogInfoProductDiscount);
         TextView productCode = dialogView.findViewById(R.id.textDialogInfoProductCode);
+        TextView productBarCode = dialogView.findViewById(R.id.textDialogInfoProductBarcode);
         TextView productPrice = dialogView.findViewById(R.id.textDialogInfoProductPrice);
         TextView productRemain = dialogView.findViewById(R.id.textDialogInfoProductRemain);
         WebView productDescription = dialogView.findViewById(R.id.webDialogInfoProductDescription);
@@ -535,6 +513,7 @@ public class AddProductsFromOrder extends AppCompatActivity {
         ImageView addCount = dialogView.findViewById(R.id.imageAddCountDialogProduct);
         ImageView deleteCount = dialogView.findViewById(R.id.imageDeleteCountDialogProduct);
         ImageView imageProduct = dialogView.findViewById(R.id.imageDialogInfoProduct);
+        ImageButton getInfo = dialogView.findViewById(R.id.imageButtonRemoteInfo);
 
         String name = clicked.getName();
         String content = "";
@@ -567,6 +546,7 @@ public class AddProductsFromOrder extends AppCompatActivity {
         productName.setText(name);
         productRemain.setText(clicked.getRemain() + " " + clicked.getUnitName());
         productDescription.loadDataWithBaseURL(null, content,"text/html","UTF-8", null);
+        productBarCode.setText(clicked.getBarCode());
 
         Bitmap bmpImage = BitmapFactory.decodeByteArray(image, 0, image.length);
         imageProduct.setImageBitmap(Bitmap.createScaledBitmap(bmpImage, 211, 211, false));
@@ -574,6 +554,67 @@ public class AddProductsFromOrder extends AppCompatActivity {
         productDiscount.setVisibility(View.GONE);
         productPrice.setText("MDL " + clicked.getPrice() + " / " + clicked.getUnitName());
         productCode.setText("#" + clicked.getCode());
+
+        if (clicked.getPriceDiscount() > 0){
+            productDiscount.setVisibility(View.GONE);
+            productPrice.setText("MDL " + clicked.getPrice());
+        }
+
+        getInfo.setOnClickListener(v -> {
+            Call<AssortmentDescription> call = orderServiceAPI.getAssortmentDescription(token, clicked.getUid());
+
+            progressDialog.setMessage("Obtain information about product...");
+            progressDialog.setCancelable(false);
+            progressDialog.setIndeterminate(true);
+            progressDialog.setButton(DialogInterface.BUTTON_NEGATIVE, "Cancel",(dialog, which) -> {
+                call.cancel();
+                if(call.isCanceled())
+                    dialog.dismiss();
+            });
+            progressDialog.show();
+
+            call.enqueue(new Callback<AssortmentDescription>() {
+                @Override
+                public void onResponse(Call<AssortmentDescription> call, Response<AssortmentDescription> response) {
+                    AssortmentDescription description = response.body();
+                    progressDialog.dismiss();
+
+                    if(description != null && description.getErrorCode() == 0){
+                        String content = "";
+                        Bitmap bmp = BitmapFactory.decodeResource(getResources(), R.drawable.product_image);
+                        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                        bmp.compress(Bitmap.CompressFormat.PNG, 100, stream);
+
+                        byte[] image = stream.toByteArray();
+
+                        if(description.getImage1() != null)
+                            image = description.getImage1();
+                        else if(description.getImage2() != null)
+                            image = description.getImage2();
+                        else if(description.getImage3() != null)
+                            image = description.getImage3();
+                        else if(description.getImage4() != null)
+                            image = description.getImage4();
+
+                        content = description.getTranslatedDescription().getRO();
+
+                        productDescription.loadDataWithBaseURL(null, content,"text/html","UTF-8", null);
+
+                        Bitmap bmpImage = BitmapFactory.decodeByteArray(image, 0, image.length);
+                        imageProduct.setImageBitmap(Bitmap.createScaledBitmap(bmpImage, 211, 211, false));
+                    }
+                    else{
+                        Toast.makeText(AddProductsFromOrder.this, "No other info!", Toast.LENGTH_SHORT).show();
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<AssortmentDescription> call, Throwable t) {
+                    progressDialog.dismiss();
+                    Toast.makeText(AddProductsFromOrder.this, "No other info!", Toast.LENGTH_SHORT).show();
+                }
+            });
+        });
 
         addCount.setOnClickListener(v -> {
             String count = textCount.getText().toString();
@@ -599,10 +640,23 @@ public class AddProductsFromOrder extends AppCompatActivity {
             double countDouble = Double.parseDouble(count);
             addProductToOrder(clicked,countDouble);
 
+            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+            if (imm != null) {
+                imm.hideSoftInputFromWindow(textCount.getWindowToken(), 0);
+            }
             productInfoDialog.dismiss();
         });
 
         productInfoDialog.show();
+        productInfoDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+            @Override
+            public void onDismiss(DialogInterface dialog) {
+                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                if (imm != null) {
+                    imm.hideSoftInputFromWindow(textCount.getWindowToken(), 0);
+                }
+            }
+        });
 
 //        int displayWidth = displayMetrics.widthPixels;
 //        int displayHeight = displayMetrics.heightPixels;
@@ -616,13 +670,26 @@ public class AddProductsFromOrder extends AppCompatActivity {
     }
 
     private void searchText(String newText) {
-        RealmResults<Assortment> result = mRealm.where(Assortment.class)
-                .contains("name", newText, Case.INSENSITIVE).or()
-                .contains("code", newText, Case.INSENSITIVE).or()
-                .contains("barCode", newText, Case.INSENSITIVE).or()
-                .sort("name", Sort.ASCENDING)
-                .findAllAsync();
+        RealmResults<Assortment> result;
+        if(!clickedId.equals("00000000-0000-0000-0000-000000000000")) {
+            result = mRealm.where(Assortment.class)
+                    .equalTo("parentUid", clickedId).and()
+                    .contains("name", newText, Case.INSENSITIVE).or()
+                    .contains("code", newText, Case.INSENSITIVE).or()
+                    .contains("barCode", newText, Case.INSENSITIVE).or()
+                    .sort("name", Sort.ASCENDING)
+                    .findAllAsync();
 
+        }
+        else{
+            result = mRealm.where(Assortment.class)
+                    .contains("name", newText, Case.INSENSITIVE).or()
+                    .contains("code", newText, Case.INSENSITIVE).or()
+                    .contains("barCode", newText, Case.INSENSITIVE).or()
+                    .sort("name", Sort.ASCENDING)
+                    .findAllAsync();
+
+        }
         findDiscountToAssortment(result);
     }
 

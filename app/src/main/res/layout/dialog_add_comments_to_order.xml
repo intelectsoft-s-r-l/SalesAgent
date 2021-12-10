@@ -5,26 +5,47 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <CheckBox
+        android:id="@+id/keepDataCheckBox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="16dp"
+        android:buttonTint="@color/orange"
+        android:checked="true"
+        android:text="Salveaza datele pentru urmatoarea comanda acestui client"
+        android:textColor="#787878"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/editTextCommentAddress" />
+
     <Button
         android:id="@+id/addCommentTo"
         android:layout_width="120dp"
         android:layout_height="50dp"
+        android:layout_marginTop="8dp"
         android:layout_marginEnd="24dp"
-        android:layout_marginBottom="24dp"
+        android:layout_marginBottom="16dp"
         android:insetTop="4dp"
         android:insetBottom="4dp"
         android:text="@string/add_product_to_card"
         android:textStyle="bold"
         app:cornerRadius="50dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/editTextCommentIput"
+        app:layout_constraintVertical_bias="1.0" />
 
     <Button
         android:id="@+id/closeDialogComment"
         android:layout_width="120dp"
         android:layout_height="50dp"
+        android:layout_marginTop="8dp"
         android:layout_marginEnd="24dp"
-        android:layout_marginBottom="24dp"
+        android:layout_marginBottom="16dp"
         android:backgroundTint="@color/white"
         android:insetTop="4dp"
         android:insetBottom="4dp"
@@ -35,6 +56,8 @@
         app:cornerRadius="50dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/addCommentTo"
+        app:layout_constraintTop_toBottomOf="@+id/editTextCommentIput"
+        app:layout_constraintVertical_bias="1.0"
         app:strokeColor="#E38B00"
         app:strokeWidth="1dp" />
 
@@ -57,16 +80,97 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="8dp"
         android:layout_marginEnd="16dp"
         android:ems="10"
         android:hint="@string/add_comment_hint_comment_dialog"
-        android:imeOptions="actionDone"
-        android:inputType="textMultiLine"
+        android:inputType="text"
         android:lines="2"
         android:maxLines="2"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/divider7" />
+
+    <EditText
+        android:id="@+id/editTextCommentName"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        android:ems="10"
+        android:hint="Nume"
+        android:imeOptions="actionDone"
+        android:inputType="text"
+        android:lines="2"
+        android:maxLines="2"
+        app:layout_constraintEnd_toStartOf="@+id/editTextCommentSurname"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView40" />
+
+    <EditText
+        android:id="@+id/editTextCommentSurname"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        android:ems="10"
+        android:hint="Prenume"
+        android:imeOptions="actionDone"
+        android:inputType="text"
+        android:lines="2"
+        android:maxLines="2"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/editTextCommentName"
+        app:layout_constraintTop_toBottomOf="@+id/textView40" />
+
+    <EditText
+        android:id="@+id/editTextCommentAddress"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="16dp"
+        android:ems="10"
+        android:hint="Adresa"
+        android:imeOptions="actionDone"
+        android:inputType="text"
+        android:lines="2"
+        android:maxLines="2"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.746"
+        app:layout_constraintStart_toEndOf="@+id/editTextCommentPhone"
+        app:layout_constraintTop_toBottomOf="@+id/editTextCommentSurname" />
+
+    <EditText
+        android:id="@+id/editTextCommentPhone"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="16dp"
+        android:ems="10"
+        android:hint="Telefon"
+        android:imeOptions="actionDone"
+        android:inputType="phone"
+        android:lines="2"
+        android:maxLines="2"
+        app:layout_constraintEnd_toStartOf="@+id/editTextCommentAddress"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/editTextCommentName" />
+
+    <View
+        android:id="@+id/divider7"
+        android:layout_width="0dp"
+        android:layout_height="1dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp"
+        android:background="@color/orange"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/keepDataCheckBox" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

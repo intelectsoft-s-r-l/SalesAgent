@@ -3,12 +3,13 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="wrap_content">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/cslCountProduct"
         android:layout_width="240dp"
         android:layout_height="49dp"
+        android:layout_marginTop="16dp"
         android:layout_marginBottom="8dp"
         android:background="@drawable/background_button_gray"
         app:layout_constraintBottom_toTopOf="@+id/addItemToCartDialogProduct"
@@ -142,59 +143,49 @@
         app:layout_constraintTop_toBottomOf="@+id/textDialogInfoProductName" />
 
     <TextView
-        android:id="@+id/textView35"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:fontFamily="@font/poppins"
-        android:text="@string/dialog_product_info_product_id"
-        android:textColor="#9B9B9B"
-        android:textSize="16sp"
-        app:layout_constraintStart_toStartOf="@+id/imageDialogInfoProduct"
-        app:layout_constraintTop_toBottomOf="@+id/imageDialogInfoProduct" />
-
-    <TextView
         android:id="@+id/textDialogInfoProductCode"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginEnd="16dp"
         android:fontFamily="@font/poppins"
         android:gravity="right"
-        android:singleLine="true"
         android:text="#467"
         android:textColor="#9B9B9B"
         android:textSize="16sp"
-        app:layout_constraintEnd_toEndOf="@+id/imageDialogInfoProduct"
-        app:layout_constraintStart_toEndOf="@+id/textView35"
-        app:layout_constraintTop_toBottomOf="@+id/imageDialogInfoProduct" />
+        app:layout_constraintBottom_toTopOf="@+id/divider5"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/textDialogInfoProductPrice"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="32dp"
-        android:layout_marginEnd="16dp"
 
+        android:layout_marginEnd="16dp"
         android:fontFamily="@font/poppins"
+        android:gravity="right"
         android:text="TextView"
         android:textColor="#A1A1A1"
         android:textSize="16sp"
         android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="@+id/cslCountProduct"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/textDialogInfoProductDiscount"
-        app:layout_constraintTop_toBottomOf="@+id/webDialogInfoProductDescription" />
+        app:layout_constraintTop_toTopOf="@+id/cslCountProduct" />
 
     <TextView
         android:id="@+id/textDialogInfoProductDiscount"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginEnd="2dp"
         android:fontFamily="@font/poppins"
         android:text="@string/dialog_product_info_price"
-        android:textColor="#A1A1A1"
+        android:textColor="@color/red"
         android:textSize="16sp"
         android:visibility="visible"
+        app:layout_constraintBottom_toBottomOf="@+id/cslCountProduct"
         app:layout_constraintEnd_toStartOf="@+id/textDialogInfoProductPrice"
         app:layout_constraintHorizontal_chainStyle="spread_inside"
-        app:layout_constraintStart_toStartOf="@+id/webDialogInfoProductDescription"
-        app:layout_constraintTop_toBottomOf="@+id/webDialogInfoProductDescription" />
+        app:layout_constraintTop_toTopOf="@+id/cslCountProduct" />
 
     <TextView
         android:id="@+id/textDialogInfoProductDiscount2"
@@ -220,7 +211,7 @@
         android:textColor="#9B9B9B"
         android:textSize="16sp"
         app:layout_constraintStart_toStartOf="@+id/imageDialogInfoProduct"
-        app:layout_constraintTop_toBottomOf="@+id/textView35" />
+        app:layout_constraintTop_toBottomOf="@+id/webDialogInfoProductDescription" />
 
     <TextView
         android:id="@+id/textDialogInfoProductRemain"
@@ -235,7 +226,7 @@
         android:textSize="16sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/textView39"
-        app:layout_constraintTop_toBottomOf="@+id/textDialogInfoProductCode" />
+        app:layout_constraintTop_toBottomOf="@+id/webDialogInfoProductDescription" />
 
     <TextView
         android:id="@+id/textDialogInfoProductBarcode"
@@ -251,5 +242,18 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/textDialogInfoProductDiscount2"
         app:layout_constraintTop_toBottomOf="@+id/textDialogInfoProductRemain" />
+
+    <ImageButton
+        android:id="@+id/imageButtonRemoteInfo"
+        style="@android:style/Widget.Material.ImageButton"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"
+        app:layout_constraintBottom_toTopOf="@+id/divider5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/outline_get_app_black_36dp" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

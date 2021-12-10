@@ -131,8 +131,8 @@
     <string name="do_you_want_save_this_order_and_exit_dialog_exit">Doriți să salvați această comandă și să ieșiți?</string>
     <string name="send_to_server_dialog_exit">Trimiteți la server</string>
     <string name="save_local_and_exit_dialog_exit">Salvați local și ieșiți</string>
-    <string name="comments_to_order_title_dialog">Comentarii la comandă</string>
-    <string name="add_comment_hint_comment_dialog">Adaugă comentariu</string>
+    <string name="comments_to_order_title_dialog">Detalii pentru comandă/livrare</string>
+    <string name="add_comment_hint_comment_dialog">Informatie suplimentara</string>
     <string name="select_language_aplication_detail_info">Selectați limba aplicației</string>
     <string name="sync_settings_item">Sincronizare</string>
     <string name="synchronization_data_info">Synchronization data</string>

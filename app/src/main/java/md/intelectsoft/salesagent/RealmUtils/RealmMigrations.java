@@ -29,5 +29,36 @@ public class RealmMigrations implements RealmMigration {
                     .addField("image", byte[].class);
             oldVersion++;
         }
+        if(oldVersion == 4){
+            schema.get("Request")
+                    .addField("name", String.class)
+                    .addField("surName", String.class)
+                    .addField("phone", String.class)
+                    .addField("additionalInfo", String.class)
+                    .addField("savedDataComment", boolean.class);
+
+            oldVersion++;
+        }
+        if(oldVersion == 5){
+            schema.get("Request")
+                    .removeField("savedDataComment");
+            schema.get("Client")
+                    .addField("savedDataComment", boolean.class);
+            oldVersion++;
+        }
+        if(oldVersion == 6){
+            schema.get("Request")
+                    .removeField("additionalInfo")
+                    .removeField("surName")
+                    .removeField("name")
+                    .removeField("phone");
+            schema.get("Client")
+                    .addField("namePerson", String.class)
+                    .addField("surName", String.class)
+                    .addField("phone", String.class)
+                    .addField("address", String.class)
+                    .addField("additionalInfo", String.class);
+            oldVersion++;
+        }
     }
 }

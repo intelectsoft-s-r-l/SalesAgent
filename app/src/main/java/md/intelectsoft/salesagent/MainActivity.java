@@ -1,5 +1,8 @@
 package md.intelectsoft.salesagent;
 
+import static md.intelectsoft.salesagent.AgentApplication.sharedPreferenceAssortment;
+import static md.intelectsoft.salesagent.AgentApplication.sharedPreferenceSettings;
+
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ActivityManager;
@@ -100,9 +103,6 @@ import md.intelectsoft.salesagent.RealmUtils.Request;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-
-import static md.intelectsoft.salesagent.AgentApplication.sharedPreferenceAssortment;
-import static md.intelectsoft.salesagent.AgentApplication.sharedPreferenceSettings;
 @SuppressLint("NonConstantResourceId")
 public class MainActivity extends AppCompatActivity  implements NavigationView.OnNavigationItemSelectedListener {
     @BindView(R.id.drawer_layout) DrawerLayout drawer;
@@ -896,7 +896,10 @@ public class MainActivity extends AppCompatActivity  implements NavigationView.O
                                                 internRequest.setState(request.getState());
                                             if (!request.getSum().equals(internRequest.getSum()))
                                                 internRequest.setSum(request.getSum());
-                                            if (!request.getComment().equals(internRequest.getComment()))
+                                            String requestComment = request.getComment();
+                                            String internRequestComment = internRequest.getComment();
+
+                                            if (requestComment != internRequestComment)
                                                 internRequest.setComment(request.getComment());
                                             mRealm.commitTransaction();
                                             break;

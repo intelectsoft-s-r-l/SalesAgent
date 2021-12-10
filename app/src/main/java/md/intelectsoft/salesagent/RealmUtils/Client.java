@@ -39,6 +39,14 @@ public class Client extends RealmObject {
     @Expose
     private String uid;
 
+    //for me
+    private boolean savedDataComment;
+    private String namePerson;
+    private String surName;
+    private String phone;
+    private String address;
+    private String additionalInfo;
+
     public String getCode() {
         return code;
     }
@@ -109,5 +117,53 @@ public class Client extends RealmObject {
 
     public void setPriceListUid(String priceListUid) {
         this.priceListUid = priceListUid;
+    }
+
+    public boolean isSavedDataComment() {
+        return savedDataComment;
+    }
+
+    public void setSavedDataComment(boolean savedDataComment) {
+        this.savedDataComment = savedDataComment;
+    }
+
+    public String getNamePerson() {
+        return namePerson;
+    }
+
+    public void setNamePerson(String namePerson) {
+        this.namePerson = namePerson;
+    }
+
+    public String getSurName() {
+        return surName;
+    }
+
+    public void setSurName(String surName) {
+        this.surName = surName;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+
+    public String getAdditionalInfo() {
+        return additionalInfo;
+    }
+
+    public void setAdditionalInfo(String additionalInfo) {
+        this.additionalInfo = additionalInfo;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
     }
 }
