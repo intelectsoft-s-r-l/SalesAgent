@@ -899,6 +899,7 @@ public class MainActivity extends AppCompatActivity  implements NavigationView.O
                                             String requestComment = request.getComment();
                                             String internRequestComment = internRequest.getComment();
 
+                                            //fixed displayng on romaninan
                                             if (requestComment != internRequestComment)
                                                 internRequest.setComment(request.getComment());
                                             mRealm.commitTransaction();
